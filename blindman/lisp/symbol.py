@@ -7,6 +7,8 @@ class Symbol:
     """
     _value: str
 
+    __match_args__ = ("_value",)
+
     def __init__(self, value: str) -> None:
         self._value = value
 
