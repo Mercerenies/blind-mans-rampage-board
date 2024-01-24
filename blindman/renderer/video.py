@@ -8,7 +8,7 @@ import numpy as np
 
 from typing import Any, BinaryIO
 
-COLOR_CHANNELS = 3
+COLOR_CHANNELS = 4  # RGBA
 
 
 class VideoRenderer:

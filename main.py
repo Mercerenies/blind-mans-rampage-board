@@ -4,10 +4,16 @@ from blindman.renderer import VideoRenderer
 from blindman.game import GameRenderer, Configuration
 from blindman.lisp import parse_many
 
+import cv2
+
 test_str = """
 (configuration
   :background-image "/home/silvio/Pictures/BlindMansRampage/Game1/Floor1/BlindManFloor1_DEBUG.png")
 """
+
+#xxx = imread_rgb("/home/silvio/Documents/star.png", cv2.IMREAD_UNCHANGED)
+#print(xxx.shape)
+#print(xxx)
 
 parsed_file = parse_many(test_str)
 

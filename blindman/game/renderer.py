@@ -2,16 +2,17 @@
 from .config import Configuration
 from .engine import GameEngine
 from blindman.renderer import FrameRenderer
-from blindman.util import imread_rgb
 
 import numpy as np
+import cv2
 
 
 class GameRenderer(FrameRenderer):
 
     def __init__(self, config: Configuration) -> None:
         self._config = config
-        self._background_image = imread_rgb(config.background_image)
+        background_image = cv2.imread(config.background_image, cv2.IMREAD_UNCHANGED)
+        self._background_image = cv2.cvtColor(background_image, cv2.COLOR_BGRA2RGBA)
         self.engine = GameEngine()
 
     def total_frames(self) -> int:
