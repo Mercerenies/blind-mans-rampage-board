@@ -6,32 +6,40 @@ from typing import Any
 
 def parse(input_str: str) -> Any:
     parser = _LispParser(input_str)
-    return parser.parse_sexpr()
+    result = parser.parse_sexpr()
+    parser.skip_whitespace()
+    if not parser.is_eof():
+        raise LispParseError("Expected end of input", parser.pos)
+    return result
 
 
 def parse_many(input_str: str) -> list[Any]:
     parser = _LispParser(input_str)
-    return parser.parse_list_contents()
+    result = parser.parse_list_contents()
+    parser.skip_whitespace()
+    if not parser.is_eof():
+        raise LispParseError("Expected end of input", parser.pos)
+    return result
 
 
 class _LispParser:
 
     def __init__(self, input_str: str) -> None:
         self._input_str = input_str
-        self._pos = 0
+        self.pos = 0
 
     def is_eof(self) -> bool:
-        return self._pos >= len(self._input_str)
+        return self.pos >= len(self._input_str)
 
     def peek(self) -> str:
         try:
-            return self._input_str[self._pos]
+            return self._input_str[self.pos]
         except IndexError:
-            raise LispParseError("Unexpected end of input")
+            raise LispParseError("Unexpected end of input", self.pos)
 
     def pop(self) -> str:
         value = self.peek()
-        self._pos += 1
+        self.pos += 1
         return value
 
     def parse_sexpr(self) -> Any:
@@ -81,9 +89,15 @@ class _LispParser:
         return lst
 
     def skip_whitespace(self) -> None:
-        while self._pos < len(self._input_str) and self.peek() in " \t\n":
-            self._pos += 1
+        while self.pos < len(self._input_str) and self.peek() in " \t\n":
+            self.pos += 1
 
 
 class LispParseError(Exception):
-    pass
+
+    def __init__(self, msg: str, position: int) -> None:
+        super().__init__(msg)
+        self.position = position
+
+    def __str__(self) -> str:
+        return f"At position {self.position}: {self.args[0]}"
