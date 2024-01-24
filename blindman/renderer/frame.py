@@ -25,5 +25,9 @@ class FrameRenderer(ABC):
         current contents of the canvas are unspecified if this is the
         first frame.
 
+        Implementors are guaranteed that this method will be called in
+        order from frame zero up to, and excluding,
+        self.total_frames().
+
         """
         ...
