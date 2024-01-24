@@ -8,7 +8,7 @@ from attrs import define, field, validators
 import requests
 
 
-@define
+@define(frozen=True)
 class User:
     id: str = field(validator=validators.instance_of(str))
     username: str = field(validator=validators.instance_of(str))
