@@ -3,9 +3,6 @@ from __future__ import annotations
 
 from blindman.lisp import Symbol
 
-import numpy as np
-import cv2
-
 from dataclasses import dataclass, KW_ONLY
 from typing import Any, Optional
 
@@ -17,14 +14,14 @@ class Configuration:
     """Configuration for a render input file."""
     _: KW_ONLY
     fps: int = DEFAULT_FPS
-    background_image: np.ndarray
+    background_image: str
 
     @classmethod
-    def from_sexpr(cls, sexpr: list[Any]) -> Configuration:
+    def from_sexpr(cls, sexpr: Any) -> Configuration:
         fps = DEFAULT_FPS
-        background_image: Optional[np.ndarray] = None
+        background_image: Optional[str] = None
 
-        if not sexpr or sexpr[0] != Symbol('configuration'):
+        if not isinstance(sexpr, list) or not sexpr or sexpr[0] != Symbol('configuration'):
             raise ConfigurationParseError('Expected a configuration S-expression')
         if len(sexpr) % 2 == 0:
             raise ConfigurationParseError('Expected an even number of arguments')
@@ -40,7 +37,7 @@ class Configuration:
                 case Symbol(':background-image'):
                     if not isinstance(value, str):
                         raise ConfigurationParseError(f'Expected a string for :background-image, got {value}')
-                    background_image = cv2.imread(value)
+                    background_image = value
                 case _:
                     raise ConfigurationParseError(f'Unexpected configuration argument {key}')
 
