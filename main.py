@@ -5,7 +5,9 @@ from blindman.game import GameRenderer, InputFile
 from blindman.game.object import EventManager
 
 input_file = InputFile.read_file("example.lisp")
-print(input_file.config)
+print(input_file)
+
+exit(0)
 
 game_renderer = GameRenderer(config=input_file.config)
 video_renderer = VideoRenderer(frame_renderer=game_renderer)

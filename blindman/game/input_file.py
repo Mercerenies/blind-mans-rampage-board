@@ -1,12 +1,10 @@
 
-from __future__ import annotations
-
 from .config import Configuration
 from .object import GameObject, Sprite
 from .error import InputParseError
 from blindman.lisp import parse_many, Symbol
 
-from attrs import define, field, validators
+import cattrs
 import cv2
 
 from dataclasses import dataclass
@@ -18,10 +16,10 @@ from pathlib import Path
 class InputFile:
     config: Configuration
     spaces_map: dict[str, tuple[int, int]]
-    objects: list[GameObject]
+    objects: list['ObjectData']
 
     @classmethod
-    def read_file(cls, file: str | TextIO) -> InputFile:
+    def read_file(cls, file: str | TextIO) -> 'InputFile':
         if isinstance(file, TextIO):
             file = file.read()
         else:
@@ -40,65 +38,41 @@ class InputFile:
         )
 
 
+@dataclass(frozen=True)
+class ObjectData:
+    name: str
+    image_path: str
+    position: tuple[int, int]
+
+    @classmethod
+    def from_sexpr(cls, sexpr: Any) -> 'ObjectData':
+        if not isinstance(sexpr, list) or not sexpr or sexpr[0] != Symbol("object"):
+            raise InputParseError("Expected (object ...) form")
+        return cattrs.structure_attrs_fromtuple(tuple(sexpr[1:]), cls)
+
+    def to_game_object(self) -> GameObject:
+        image = cv2.imread(self.image_path, cv2.IMREAD_UNCHANGED)
+        image = cv2.cvtColor(image, cv2.COLOR_BGRA2RGBA)
+        return Sprite(
+            position=self.position,
+            image=image,
+            name=self.name,
+        )
+
+
 def _parse_spaces_map(sexpr: Any) -> dict[str, tuple[int, int]]:
-    if not isinstance(sexpr, list) or not sexpr or sexpr[0] != Symbol("spaces"):
+    if not isinstance(sexpr, list):
+        raise InputParseError("Expected a list of spaces")
+    if len(sexpr) < 1 or sexpr[0] != Symbol("spaces"):
         raise InputParseError("Expected (spaces ...) form")
-    spaces_map: dict[str, tuple[int, int]]
-    spaces_map = {}
 
-    for space_sexpr in sexpr[1:]:
-        if not isinstance(space_sexpr, list) or len(space_sexpr) != 2:
-            raise InputParseError("Expected (key position) form")
-        key, position = space_sexpr
-        if not isinstance(key, Symbol):
-            raise InputParseError(f"Expected symbol key, got {key}")
-        position = tuple(position)
-        _validate_is_position(position)
-        spaces_map[str(key)] = position
-    return spaces_map
+    entries = cattrs.structure(sexpr[1:], list[tuple[str, tuple[int, int]]])
+    return dict(entries)
 
 
-def _parse_objects(sexpr: Any) -> list[GameObject]:
+def _parse_objects(sexpr: Any) -> list[ObjectData]:
     if not isinstance(sexpr, list):
         raise InputParseError("Expected a list of objects")
     if len(sexpr) < 1 or sexpr[0] != Symbol("objects"):
         raise InputParseError("Expected (objects ...) form")
-    return [_parse_object(x) for x in sexpr[1:]]
-
-
-def _validate_is_position(value: Any) -> None:
-    if not isinstance(value, tuple):
-        raise TypeError(f"Expected tuple, got {type(value)}")
-    if len(value) != 2:
-        raise TypeError(f"Expected tuple of length 2, got {value}")
-    if not all(isinstance(x, int) for x in value):
-        raise TypeError(f"Expected int elements in tuple, got {value}")
-
-
-@define
-class _ObjectData:
-    name: Symbol = field(validator=validators.instance_of(Symbol))
-    path: str = field(validator=validators.instance_of(str))
-    position: tuple[int, int] = field(converter=tuple)
-
-    @position.validator
-    def _validate_position(self, _, value) -> None:
-        _validate_is_position(value)
-
-
-def _parse_object(sexpr: Any) -> GameObject:
-    if not isinstance(sexpr, list) or sexpr[0] != Symbol("object"):
-        raise InputParseError("Expected (object ...) form")
-    if len(sexpr) != 4:
-        raise InputParseError("Expected (object name path position) form")
-    try:
-        data = _ObjectData(*sexpr[1:])
-    except TypeError as exc:
-        raise InputParseError(f"Could not parse object: {exc}") from exc
-    image = cv2.imread(data.path, cv2.IMREAD_UNCHANGED)
-    image = cv2.cvtColor(image, cv2.COLOR_BGRA2RGBA)
-    return Sprite(
-        position=data.position,
-        image=image,
-        name=str(data.name),
-    )
+    return [ObjectData.from_sexpr(x) for x in sexpr[1:]]
