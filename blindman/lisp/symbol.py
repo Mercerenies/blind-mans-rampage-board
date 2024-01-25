@@ -24,7 +24,4 @@ class Symbol:
         return f"Symbol({self._value!r})"
 
     def __str__(self) -> str:
-        if " " in self._value:
-            return f"'|{self._value}|"
-        else:
-            return f"'{self._value}"
+        return self._value
