@@ -3,4 +3,5 @@ imageio-ffmpeg==0.4.9
 Pillow==9.2.0
 requests==2.28.2
 attrs==22.2.0
+cattrs==23.2.3
 redis==5.0.1
