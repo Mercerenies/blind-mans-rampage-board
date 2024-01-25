@@ -1,5 +1,5 @@
 
-from .engine import GameObject
+from .base import GameObject
 from blindman.util import draw
 
 import numpy as np

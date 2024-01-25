@@ -1,9 +1,9 @@
 
 from __future__ import annotations
 
-import numpy as np
+from .object import GameObject
 
-from abc import ABC, abstractmethod
+import numpy as np
 
 
 class GameEngine:
@@ -31,18 +31,3 @@ class GameEngine:
             if obj.name == name:
                 return obj
         raise ValueError(f"Object with name '{name}' not found")
-
-
-class GameObject(ABC):
-    name: str | None
-
-    def __init__(self, name: str | None = None) -> None:
-        self.name = name
-
-    @abstractmethod
-    def step(self, frame_number: int) -> None:
-        ...
-
-    @abstractmethod
-    def draw(self, frame_number: int, canvas: np.ndarray) -> None:
-        ...
