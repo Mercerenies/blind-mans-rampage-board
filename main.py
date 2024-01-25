@@ -1,7 +1,8 @@
 
-from blindman.discord import get_avatar
+#from blindman.discord import get_avatar
 from blindman.renderer import VideoRenderer
-from blindman.game import GameRenderer, Configuration, Sprite
+from blindman.game import GameRenderer, Configuration
+from blindman.game.object import Sprite, EventManager, MoveObjectEvent
 from blindman.lisp import parse_many
 
 import cv2
@@ -18,6 +19,10 @@ parsed_file = parse_many(test_str)
 game_renderer = GameRenderer(config=Configuration.from_sexpr(parsed_file[0]))
 video_renderer = VideoRenderer(frame_renderer=game_renderer)
 game_renderer.engine.add_object(Sprite((96, 96), star, "star"))
+
+event_manager = EventManager(game_renderer.engine)
+game_renderer.engine.add_object(event_manager)
+event_manager.append_event(0, MoveObjectEvent.factory("star", (256, 256), 60))
 
 video_renderer.render('tmp.mp4')
 print("Done.")

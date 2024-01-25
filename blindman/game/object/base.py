@@ -6,9 +6,11 @@ from abc import ABC, abstractmethod
 
 class GameObject(ABC):
     name: str | None
+    position: tuple[int, int]
 
     def __init__(self, name: str | None = None) -> None:
         self.name = name
+        self.position = (0, 0)
 
     @abstractmethod
     def step(self, frame_number: int) -> None:

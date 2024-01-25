@@ -7,7 +7,6 @@ import numpy as np
 
 class Sprite(GameObject):
     image: np.ndarray
-    position: tuple[int, int]
 
     def __init__(self, position: tuple[int, int], image: np.ndarray, name: str | None = None) -> None:
         super().__init__(name=name)

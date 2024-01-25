@@ -14,6 +14,8 @@ ALPHA_CHANNEL = 3
 _K = TypeVar("_K")
 _V = TypeVar("_V")
 
+_T_number = TypeVar("_T_number", int, float)
+
 
 def attrs_field_names(cls: type) -> list[str]:
     return [f.name for f in attrs.fields(cls)]
@@ -30,3 +32,7 @@ def draw(destination: np.ndarray, source: np.ndarray, center: tuple[int, int]) -
     source_alpha = source[:, :, (ALPHA_CHANNEL,)] / MAX_BYTE
     destination_patch = destination_patch * (1 - source_alpha) + source * source_alpha
     destination[upperleft_y:lowerright_y, upperleft_x:lowerright_x, :] = destination_patch.astype(np.uint8)
+
+
+def lerp(a: _T_number, b: _T_number, x: _T_number) -> _T_number:
+    return (1 - x) * a + x * b
