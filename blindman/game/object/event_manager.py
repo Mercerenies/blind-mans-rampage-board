@@ -12,11 +12,11 @@ from typing import Callable
 
 EVENT_MANAGER_NAME = '__eventmanager'
 
-GameObjectFactory = Callable[[GameEngine], GameObject]
+Event = Callable[[GameEngine], None]
 
 
 class EventManager(GameObject):
-    _events: dict[int, list[GameObjectFactory]]
+    _events: dict[int, list[Event]]
     _game: GameEngine
 
     def __init__(self, game: GameEngine, name: str = EVENT_MANAGER_NAME) -> None:
@@ -24,20 +24,25 @@ class EventManager(GameObject):
         self._events = defaultdict(list)
         self._game = game
 
-    def append_event(self, event_time: int, event: GameObjectFactory) -> None:
+    def append_event(self, event_time: int, event: Event) -> None:
         self._events[event_time].append(event)
 
     def step(self, frame_number: int) -> None:
         if frame_number in self._events:
             for event in self._events[frame_number]:
-                new_object = event(self._game)
-                self._game.add_object(new_object)
+                event(self._game)
 
     def draw(self, frame_number: int, canvas: np.ndarray) -> None:
         pass  # EventManager is a controller object; it does not draw.
 
 
-class MoveObjectEvent(GameObject):
+def create_object_event(object_factory: Callable[[GameEngine], GameObject]) -> Event:
+    def _event(game: GameEngine) -> None:
+        game.add_object(object_factory(game))
+    return _event
+
+
+class MoveObjectController(GameObject):
 
     def __init__(self, game: GameEngine, object_name: str, new_pos: tuple[int, int], total_frames: int) -> None:
         super().__init__(name=None)
@@ -62,7 +67,7 @@ class MoveObjectEvent(GameObject):
         pass  # Control object
 
     @classmethod
-    def factory(cls, object_name: str, new_pos: tuple[int, int], total_frames: int) -> GameObjectFactory:
-        def _factory(game: GameEngine) -> MoveObjectEvent:
-            return MoveObjectEvent(game, object_name, new_pos, total_frames)
-        return _factory
+    def event(cls, object_name: str, new_pos: tuple[int, int], total_frames: int) -> Event:
+        def _factory(game: GameEngine) -> MoveObjectController:
+            return MoveObjectController(game, object_name, new_pos, total_frames)
+        return create_object_event(_factory)
