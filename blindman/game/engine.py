@@ -1,9 +1,14 @@
 
 from __future__ import annotations
 
-from .object import GameObject
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .object import GameObject
 
 import numpy as np
+
+from copy import copy
 
 
 class GameEngine:
@@ -13,11 +18,11 @@ class GameEngine:
         self._objects = []
 
     def perform_step(self, frame_number: int) -> None:
-        for obj in self._objects:
+        for obj in copy(self._objects):  # copy: Do not reflect changes to the list during iteration.
             obj.step(frame_number)
 
     def render_frame(self, frame_number: int, canvas: np.ndarray) -> None:
-        for obj in self._objects:
+        for obj in copy(self._objects):  # copy: Do not reflect changes to the list during iteration.
             obj.draw(frame_number, canvas)
 
     def add_object(self, obj: GameObject) -> None:
