@@ -22,7 +22,7 @@ class GameRenderer(FrameRenderer):
         return self._config.fps
 
     def frame_size(self) -> tuple[int, int]:
-        height, width, _ = self._background_image.shape
+        width, height, _ = self._background_image.shape
         return width, height
 
     def render_frame(self, frame_number: int, canvas: np.ndarray) -> None:

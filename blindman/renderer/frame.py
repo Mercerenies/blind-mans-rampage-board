@@ -16,7 +16,7 @@ class FrameRenderer(ABC):
 
     @abstractmethod
     def frame_size(self) -> tuple[int, int]:
-        """Returns (width, height) of the desired canvas."""
+        """Returns (height, width) of the desired canvas."""
         ...
 
     @abstractmethod

@@ -17,7 +17,7 @@ class VideoRenderer:
         self._frame_renderer = frame_renderer
 
     def render(self, output_file: str | BinaryIO) -> None:
-        width, height = self._frame_renderer.frame_size()
+        height, width = self._frame_renderer.frame_size()
         canvas = np.zeros((height, width, COLOR_CHANNELS), dtype=np.uint8)
         writer: Any  # __enter__ type is wrong in imageio pyi
         with iio.get_writer(output_file, fps=self._frame_renderer.fps()) as writer:
