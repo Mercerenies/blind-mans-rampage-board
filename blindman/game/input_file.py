@@ -3,13 +3,18 @@ from .config import Configuration
 from .object import GameObject, Sprite
 from .error import InputParseError
 from blindman.lisp import parse_many, Symbol
+from blindman.discord import get_avatar
 
 import cattrs
 import cv2
+import numpy as np
 
 from dataclasses import dataclass
 from typing import TextIO, Any
 from pathlib import Path
+
+
+DISCORD_AVATAR_SIZE = 32
 
 
 @dataclass(frozen=True)
@@ -51,13 +56,28 @@ class ObjectData:
         return cattrs.structure_attrs_fromtuple(tuple(sexpr[1:]), cls)
 
     def to_game_object(self) -> GameObject:
-        image = cv2.imread(self.image_path, cv2.IMREAD_UNCHANGED)
-        image = cv2.cvtColor(image, cv2.COLOR_BGRA2RGBA)
+        image = resolve_image_path(self.image_path)
         return Sprite(
             position=self.position,
             image=image,
             name=self.name,
         )
+
+
+def resolve_image_path(image_path: str) -> np.ndarray:
+    if image_path.startswith('discord:'):
+        return _load_discord_image(image_path[8:])
+    else:
+        image = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
+        image = cv2.cvtColor(image, cv2.COLOR_BGRA2RGBA)
+        return image
+
+
+def _load_discord_image(user_id: str) -> np.ndarray:
+    avatar_bytes = get_avatar(user_id, size=DISCORD_AVATAR_SIZE)
+    image = cv2.imdecode(np.frombuffer(avatar_bytes, dtype=np.uint8), cv2.IMREAD_UNCHANGED)
+    image = cv2.cvtColor(image, cv2.COLOR_BGRA2RGBA)
+    return image
 
 
 def _parse_spaces_map(sexpr: Any) -> dict[str, tuple[int, int]]:
