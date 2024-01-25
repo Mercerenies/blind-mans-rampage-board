@@ -4,8 +4,8 @@ from __future__ import annotations
 import attrs
 import numpy as np
 
-from typing import Iterable
-from typing import TypeVar
+import itertools
+from typing import Iterable, Iterator, TypeVar, Literal, overload
 
 MAX_BYTE = 255
 ALPHA_CHANNEL = 3
@@ -13,6 +13,7 @@ ALPHA_CHANNEL = 3
 
 _K = TypeVar("_K")
 _V = TypeVar("_V")
+_T = TypeVar("_T")
 
 _T_number = TypeVar("_T_number", int, float)
 
@@ -36,3 +37,24 @@ def draw(destination: np.ndarray, source: np.ndarray, center: tuple[int, int]) -
 
 def lerp(a: _T_number, b: _T_number, x: _T_number) -> _T_number:
     return (1 - x) * a + x * b
+
+
+@overload
+def batched(iterable: Iterable[_T], n: Literal[1]) -> Iterator[tuple[_T]]: ...
+@overload
+def batched(iterable: Iterable[_T], n: Literal[2]) -> Iterator[tuple[_T, _T]]: ...
+@overload
+def batched(iterable: Iterable[_T], n: Literal[3]) -> Iterator[tuple[_T, _T, _T]]: ...
+
+
+def batched(iterable: Iterable[_T], n: int) -> Iterator[tuple[_T, ...]]:
+    """Backport of itertools.batched from Python 3.12+"""
+    if n < 1:
+        raise ValueError('n must be at least one')
+    it = iter(iterable)
+    while batch := tuple(itertools.islice(it, n)):
+        yield batch
+
+
+def pairs(iterable: Iterable[_T]) -> Iterator[tuple[_T, _T]]:
+    return batched(iterable, 2)
