@@ -2,9 +2,10 @@
 #from blindman.discord import get_avatar
 from blindman.renderer import VideoRenderer
 from blindman.game import GameRenderer, InputFile
-from blindman.game.object import Sprite, EventManager, MoveObjectEvent
+from blindman.game.object import EventManager
 
 input_file = InputFile.read_file("example.lisp")
+print(input_file)
 
 game_renderer = GameRenderer(config=input_file.config)
 video_renderer = VideoRenderer(frame_renderer=game_renderer)

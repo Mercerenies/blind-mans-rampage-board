@@ -13,9 +13,10 @@ from typing import TextIO, Any
 from pathlib import Path
 
 
-@dataclass
+@dataclass(frozen=True)
 class InputFile:
     config: Configuration
+    spaces_map: dict[str, tuple[int, int]]
     objects: list[GameObject]
 
     @classmethod
@@ -25,17 +26,40 @@ class InputFile:
         else:
             file = Path(file).read_text(encoding='utf-8')
         contents = parse_many(file)
-        if len(contents) < 2:
-            raise InputParseError("Expecting at least 2 elements in input file")
+        if len(contents) < 3:
+            raise InputParseError("Expecting at least 3 elements in input file")
+
+        config = Configuration.from_sexpr(contents[0])
+        spaces_map = _parse_spaces_map(contents[1])
+        objects = _parse_objects(contents[2])
         return cls(
-            config=Configuration.from_sexpr(contents[0]),
-            objects=_parse_objects(contents[1]),
+            config=config,
+            spaces_map=spaces_map,
+            objects=objects,
         )
 
 
 class InputParseError(Exception):
     """An error occurred while parsing a render input file."""
     pass
+
+
+def _parse_spaces_map(sexpr: Any) -> dict[str, tuple[int, int]]:
+    if not isinstance(sexpr, list) or not sexpr or sexpr[0] != Symbol("spaces"):
+        raise InputParseError("Expected (spaces ...) form")
+    spaces_map: dict[str, tuple[int, int]]
+    spaces_map = {}
+
+    for space_sexpr in sexpr[1:]:
+        if not isinstance(space_sexpr, list) or len(space_sexpr) != 2:
+            raise InputParseError("Expected (key position) form")
+        key, position = space_sexpr
+        if not isinstance(key, Symbol):
+            raise InputParseError(f"Expected symbol key, got {key}")
+        position = tuple(position)
+        _validate_is_position(position)
+        spaces_map[str(key)] = position
+    return spaces_map
 
 
 def _parse_objects(sexpr: Any) -> list[GameObject]:
