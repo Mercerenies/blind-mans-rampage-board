@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from .config import Configuration
 from .object import GameObject, Sprite
+from .error import InputParseError
 from blindman.lisp import parse_many, Symbol
 
 from attrs import define, field, validators
@@ -37,11 +38,6 @@ class InputFile:
             spaces_map=spaces_map,
             objects=objects,
         )
-
-
-class InputParseError(Exception):
-    """An error occurred while parsing a render input file."""
-    pass
 
 
 def _parse_spaces_map(sexpr: Any) -> dict[str, tuple[int, int]]:
