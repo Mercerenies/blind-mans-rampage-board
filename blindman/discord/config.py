@@ -1,4 +1,6 @@
 
+"""Configuration accessors for Discord."""
+
 import os
 
 BOT_TOKEN_ENV_NAME = 'DISCORD_BOT_TOKEN'
