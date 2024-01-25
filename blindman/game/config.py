@@ -26,8 +26,3 @@ class Configuration:
         if data_dict['_type'] != 'configuration':
             raise InputParseError(f'Expected a configuration S-expression, got {sexpr}')
         return cattrs.structure(data_dict, cls)
-
-
-class ConfigurationParseError(Exception):
-    """An error occurred while parsing a render input file."""
-    pass
