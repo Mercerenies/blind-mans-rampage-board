@@ -61,7 +61,12 @@ class _LispParser:
         while self.peek() != '"':
             next_char = self.pop()
             if next_char == '\\':
-                chars.append(self.pop())
+                next_char = self.pop()
+                match next_char:
+                    case 'n':
+                        chars.append('\n')
+                    case _:
+                        chars.append(next_char)
             else:
                 chars.append(next_char)
         self.pop()  # Consume closing quote
