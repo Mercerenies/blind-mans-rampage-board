@@ -25,19 +25,9 @@ class MovePlayerCommand(Command):
     destination_space: str
 
     def execute(self, board: Board, timeline: TimelineLike) -> None:
-        planner = MovementPlanner(board)
-
-        source_space = board.get_space(self.player_name)
-        for player in board.get_players_at(source_space):
-            planner.add_player(player, MovementType.SHORT)
-        for player in board.get_players_at(self.destination_space):
-            planner.add_player(player, MovementType.SHORT)
-        planner.add_player(player, MovementType.LONG)
-
-        board.move_player(self.player_name, self.destination_space)
-
-        planner.take_destination_snapshot()
-        planner.produce_movement(timeline)
+        with MovementPlanner(board, timeline) as planner:
+            planner.add_player(self.player_name, MovementType.LONG)
+            board.move_player(self.player_name, self.destination_space)
 
 
 @dataclass(frozen=True)

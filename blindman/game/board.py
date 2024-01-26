@@ -6,8 +6,7 @@ from blindman.game.object.sprite import Sprite
 from attrs import define, field
 
 from collections import defaultdict
-import itertools
-from typing import NamedTuple
+from typing import Iterable, NamedTuple
 
 
 @define(eq=False)
@@ -18,6 +17,10 @@ class Board:
     _position_map: dict[str, list[str]] = field(init=False, factory=lambda: defaultdict(list))
     # Maps player to space
     _player_map: dict[str, str] = field(init=False, factory=dict)
+
+    @property
+    def players(self) -> Iterable[str]:
+        return self._player_map.keys()
 
     def add_player(self, player: Sprite, starting_space: str) -> None:
         player_name = player.name

@@ -43,9 +43,27 @@ class MovementPlanner:
     occurred, call take_destination_snapshot to scan the board for
     changes and prepare the animations.
 
+    MovementPlanner can also be used as a context manager, which
+    automates much of this process.
+
     """
     _board: Board
+    _timeline: TimelineLike
     _players: dict[str, PlayerMovement] = field(init=False, factory=dict)
+
+    def __enter__(self) -> MovementPlanner:
+        # Add all players on the board with a trivial short movement,
+        # so that anyone who needs to adjust can do so.
+        for player in self._board.players:
+            self.add_player(player, MovementType.SHORT)
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        if exc_type:
+            return  # Let exceptions propagate and do not make any animations
+
+        self.take_destination_snapshot()
+        self.produce_movement()
 
     def add_player(self, player_name: str, movement_type: MovementType) -> None:
         """Adds the player to the current movement. If the player is
@@ -77,12 +95,12 @@ class MovementPlanner:
             destination = self._board.get_position(player_name)
             self._players[player_name] = evolve(self._players[player_name], destination=destination)
 
-    def produce_movement(self, timeline: TimelineLike) -> None:
+    def produce_movement(self) -> None:
         for player in self._players.values():
             total_frames = MOVEMENT_LENGTHS[player.movement_type]
             if player.source == player.destination:
                 continue  # Do not make an event out of a trivial movement.
-            timeline.append_event(
+            self._timeline.append_event(
                 MoveObjectController.event(
                     object_name=player.player_name,
                     new_pos=player.destination,
@@ -91,7 +109,7 @@ class MovementPlanner:
             )
 
         max_length = max(MOVEMENT_LENGTHS[m.movement_type] for m in self._players.values())
-        timeline.wait(max_length)
+        self._timeline.wait(max_length)
 
 
 @define(frozen=True)
