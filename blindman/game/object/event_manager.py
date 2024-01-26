@@ -8,7 +8,7 @@ from blindman.util import lerp
 import numpy as np
 
 from collections import defaultdict
-from typing import Callable
+from typing import Callable, Iterable
 
 EVENT_MANAGER_NAME = '__eventmanager'
 
@@ -40,6 +40,13 @@ def create_object_event(object_factory: Callable[[GameEngine], GameObject]) -> E
     def _event(game: GameEngine) -> None:
         game.add_object(object_factory(game))
     return _event
+
+
+def many(events: Iterable[Event]) -> Event:
+    def _execute_all(game: GameEngine) -> None:
+        for event in events:
+            event(game)
+    return _execute_all
 
 
 class MoveObjectController(GameObject):
