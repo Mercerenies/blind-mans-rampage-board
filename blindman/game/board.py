@@ -1,12 +1,14 @@
 
 from __future__ import annotations
 
+from .movement import MovementPlanner, MovementType
 from blindman.game.object.sprite import Sprite
 from blindman.game.object.events import Event, create_object_event
 
 from attrs import define, field
 
 from collections import defaultdict
+import itertools
 from typing import Protocol, NamedTuple
 
 
@@ -34,6 +36,25 @@ class Board:
             # Assume the object was there from the beginning, so don't
             # emit an event to spawn it.
             self.delegate.append_event(create_object_event(lambda _: player))
+
+    def move_player(self, player_name: str, destination_space: str) -> None:
+        movement_planner = MovementPlanner(self)
+
+        source_space = self._player_map[player_name]
+        # All players on the source and destination spaces will make
+        # short adjustments to their positions.
+        for player in itertools.chain(self._position_map[source_space], self._position_map[destination_space]):
+            movement_planner.add_player(player, MovementType.SHORT)
+        # The moving player is making a significant movement.
+        movement_planner.add_player(player_name, MovementType.LONG)
+
+        self._position_map[source_space].remove(player_name)
+        self._player_map[player_name] = destination_space
+        self._position_map[destination_space].append(player_name)
+
+        # Produce the animation.
+        movement_planner.take_destination_snapshot()
+        movement_planner.produce_movement()
 
     def get_space(self, player_name: str) -> str:
         return self._player_map[player_name]
