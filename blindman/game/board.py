@@ -22,10 +22,7 @@ class Board:
     def players(self) -> Iterable[str]:
         return self._player_map.keys()
 
-    def add_player(self, player: Sprite, starting_space: str) -> None:
-        player_name = player.name
-        if player_name is None:
-            raise ValueError("Player sprite must have a name to be stored in a Board instance")
+    def add_player(self, player_name: str, starting_space: str) -> None:
         if player_name in self._player_map:
             raise ValueError(f"Player {player_name} already exists")
         if starting_space not in self.spaces_map:
@@ -44,6 +41,20 @@ class Board:
 
     def get_space(self, player_name: str) -> str:
         return self._player_map[player_name]
+
+    def __contains__(self, player_name: str) -> bool:
+        return player_name in self._player_map
+
+    def __getitem__(self, player_name: str) -> str:
+        """Alias for self.get_space."""
+        return self.get_space(player_name)
+
+    def __setitem__(self, player_name: str, destination_space: str) -> None:
+        """Calls add_player or move_player as needed."""
+        if player_name in self:
+            self.move_player(player_name, destination_space)
+        else:
+            self.add_player(player_name, destination_space)
 
     def get_position(self, player_name: str) -> tuple[int, int]:
         space = self.get_space(player_name)

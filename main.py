@@ -22,10 +22,7 @@ if __name__ == "__main__":
     for obj in input_file.objects:
         game_obj = obj.to_game_object(input_file.spaces_map)
         all_game_objects.append(game_obj)
-        board.add_player(
-            player=game_obj,
-            starting_space=obj.space_name,
-        )
+        board[game_obj.name] = obj.space_name
 
     # Position the players in the initial frame.
     for game_obj in all_game_objects:

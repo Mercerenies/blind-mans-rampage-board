@@ -27,7 +27,7 @@ class MovePlayerCommand(Command):
     def execute(self, board: Board, timeline: TimelineLike) -> None:
         with MovementPlanner(board, timeline) as planner:
             planner.add_player(self.player_name, MovementType.LONG)
-            board.move_player(self.player_name, self.destination_space)
+            board[self.player_name] = self.destination_space
 
 
 @dataclass(frozen=True)
@@ -39,12 +39,7 @@ class SwapPlayerCommand(Command):
         with MovementPlanner(board, timeline) as planner:
             planner.add_player(self.first_player, MovementType.LONG)
             planner.add_player(self.second_player, MovementType.LONG)
-
-            first_player_space = board.get_space(self.first_player)
-            second_player_space = board.get_space(self.second_player)
-
-            board.move_player(self.first_player, second_player_space)
-            board.move_player(self.second_player, first_player_space)
+            board[self.first_player], board[self.second_player] = board[self.second_player], board[self.first_player]
 
 
 @dataclass(frozen=True)
