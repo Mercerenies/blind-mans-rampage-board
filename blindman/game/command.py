@@ -3,12 +3,17 @@ from .board import Board
 from .timeline import TimelineLike
 from .error import InputParseError
 from .movement import MovementPlanner, MovementType
+from blindman.game.object.text import Text, TEXT_OBJECT_NAME
+from blindman.game.object.events import destroy_object_event
 
 import cattrs
 
 from abc import abstractmethod, ABC
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from blindman.game.engine import GameEngine
 
 
 class Command(ABC):
@@ -43,6 +48,29 @@ class SwapPlayerCommand(Command):
 
 
 @dataclass(frozen=True)
+class SetTextCommand(Command):
+    text: str
+
+    def execute(self, board: Board, timeline: TimelineLike) -> None:
+        def _event(engine: 'GameEngine') -> None:
+            if engine.has_object(TEXT_OBJECT_NAME):
+                existing_text_object = engine.find_object(TEXT_OBJECT_NAME)
+                assert isinstance(existing_text_object, Text)
+                existing_text_object.text = self.text
+            else:
+                new_text_object = Text(self.text)
+                engine.add_object(new_text_object)
+        timeline.append_event(_event)
+
+
+@dataclass(frozen=True)
+class ResetTextCommand(Command):
+
+    def execute(self, board: Board, timeline: TimelineLike) -> None:
+        timeline.append_event(destroy_object_event(TEXT_OBJECT_NAME))
+
+
+@dataclass(frozen=True)
 class WaitCommand(Command):
     frames: int
 
@@ -54,6 +82,8 @@ COMMAND_REGISTRY: dict[str, type]
 COMMAND_REGISTRY = {
     'move': MovePlayerCommand,
     'swap': SwapPlayerCommand,
+    'text': SetTextCommand,
+    'hide-text': ResetTextCommand,
     'wait': WaitCommand,
 }
 

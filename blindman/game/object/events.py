@@ -48,6 +48,12 @@ def create_object_event(object_factory: Callable[[GameEngine], GameObject]) -> E
     return _event
 
 
+def destroy_object_event(object_name: str) -> Event:
+    def _event(game: GameEngine) -> None:
+        game.remove_object(object_name)
+    return _event
+
+
 def many(events: Iterable[Event]) -> Event:
     def _execute_all(game: GameEngine) -> None:
         for event in events:

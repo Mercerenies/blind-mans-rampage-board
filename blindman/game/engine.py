@@ -28,8 +28,13 @@ class GameEngine:
     def add_object(self, obj: GameObject) -> None:
         self._objects.append(obj)
 
-    def remove_object(self, obj: GameObject) -> None:
+    def remove_object(self, obj: GameObject | str) -> None:
+        if isinstance(obj, str):
+            obj = self.find_object(obj)
         self._objects.remove(obj)
+
+    def has_object(self, name: str) -> bool:
+        return any(obj.name == name for obj in self._objects)
 
     def find_object(self, name: str) -> GameObject:
         for obj in self._objects:

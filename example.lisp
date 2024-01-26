@@ -31,7 +31,10 @@
   (object mercerenies "discord:87351108317491200" start))
 
 (commands
+  (text "Mercerenies moves right")
   (move mercerenies center-gray)
   (wait 60)
+  (text "Merc and the star swapped")
   (swap star mercerenies)
+  (hide-text)
   (wait 60))
