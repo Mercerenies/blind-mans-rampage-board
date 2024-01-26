@@ -5,6 +5,8 @@ from blindman.game.object.events import EventManager, Event
 
 from attrs import define, field
 
+from typing import Protocol
+
 
 @define(eq=False)
 class Timeline:
@@ -17,3 +19,12 @@ class Timeline:
 
     def wait(self, delta: int) -> None:
         self.moment += delta
+
+
+class TimelineLike(Protocol):
+
+    def append_event(self, *events: Event) -> None:
+        ...
+
+    def wait(self, delta: int) -> None:
+        ...

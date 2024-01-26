@@ -14,7 +14,6 @@ if __name__ == "__main__":
     # Set up the timeline and board manager.
     timeline = Timeline(manager=event_manager)
     board = Board(
-        delegate=timeline,
         spaces_map=input_file.spaces_map,
     )
 
@@ -26,7 +25,6 @@ if __name__ == "__main__":
         board.add_player(
             player=game_obj,
             starting_space=obj.space_name,
-            silently=True,
         )
 
     # Position the players in the initial frame.
@@ -36,7 +34,7 @@ if __name__ == "__main__":
 
     # Play out the commands in order.
     for command in input_file.commands:
-        command.execute(board)
+        command.execute(board, timeline)
 
     game_renderer = GameRenderer(
         config=input_file.config,

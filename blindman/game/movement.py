@@ -11,7 +11,8 @@ from enum import IntEnum, auto
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .board import Board, BoardEventDelegate
+    from .board import Board
+    from .timeline import TimelineLike
 
 
 class MovementType(IntEnum):
@@ -76,12 +77,12 @@ class MovementPlanner:
             destination = self._board.get_position(player_name)
             self._players[player_name] = evolve(self._players[player_name], destination=destination)
 
-    def produce_movement(self, delegate: BoardEventDelegate | None = None) -> None:
-        if delegate is None:
-            delegate = self._board.delegate
+    def produce_movement(self, timeline: TimelineLike) -> None:
         for player in self._players.values():
             total_frames = MOVEMENT_LENGTHS[player.movement_type]
-            delegate.append_event(
+            if player.source == player.destination:
+                continue  # Do not make an event out of a trivial movement.
+            timeline.append_event(
                 MoveObjectController.event(
                     object_name=player.player_name,
                     new_pos=player.destination,
@@ -90,7 +91,7 @@ class MovementPlanner:
             )
 
         max_length = max(MOVEMENT_LENGTHS[m.movement_type] for m in self._players.values())
-        delegate.wait(max_length)
+        timeline.wait(max_length)
 
 
 @define(frozen=True)

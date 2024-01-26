@@ -1,6 +1,8 @@
 
 from .board import Board
+from .timeline import TimelineLike
 from .error import InputParseError
+from .movement import MovementPlanner, MovementType
 
 import cattrs
 
@@ -13,7 +15,7 @@ class Command(ABC):
     """A command acts on a Board."""
 
     @abstractmethod
-    def execute(self, board: Board) -> None:
+    def execute(self, board: Board, timeline: TimelineLike) -> None:
         ...
 
 
@@ -22,16 +24,28 @@ class MovePlayerCommand(Command):
     player_name: str
     destination_space: str
 
-    def execute(self, board: Board) -> None:
+    def execute(self, board: Board, timeline: TimelineLike) -> None:
+        planner = MovementPlanner(board)
+
+        source_space = board.get_space(self.player_name)
+        for player in board.get_players_at(source_space):
+            planner.add_player(player, MovementType.SHORT)
+        for player in board.get_players_at(self.destination_space):
+            planner.add_player(player, MovementType.SHORT)
+        planner.add_player(player, MovementType.LONG)
+
         board.move_player(self.player_name, self.destination_space)
+
+        planner.take_destination_snapshot()
+        planner.produce_movement(timeline)
 
 
 @dataclass(frozen=True)
 class WaitCommand(Command):
     frames: int
 
-    def execute(self, board: Board) -> None:
-        board.delegate.wait(self.frames)
+    def execute(self, board: Board, timeline: TimelineLike) -> None:
+        timeline.wait(self.frames)
 
 
 COMMAND_REGISTRY: dict[str, type]
