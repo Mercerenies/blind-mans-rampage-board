@@ -37,4 +37,6 @@
   (text "Merc and the star swapped")
   (swap star mercerenies)
   (hide-text)
+  (wait 30)
+  (text "This text has\nmultiple lines")
   (wait 60))
