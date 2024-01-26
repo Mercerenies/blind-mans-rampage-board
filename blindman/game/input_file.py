@@ -10,7 +10,7 @@ import cv2
 import numpy as np
 
 from dataclasses import dataclass
-from typing import TextIO, Any
+from typing import TextIO, Any, Mapping
 from pathlib import Path
 
 
@@ -47,7 +47,7 @@ class InputFile:
 class ObjectData:
     name: str
     image_path: str
-    position: tuple[int, int]
+    space_name: str
 
     @classmethod
     def from_sexpr(cls, sexpr: Any) -> 'ObjectData':
@@ -55,10 +55,11 @@ class ObjectData:
             raise InputParseError("Expected (object ...) form")
         return cattrs.structure_attrs_fromtuple(tuple(sexpr[1:]), cls)
 
-    def to_game_object(self) -> Sprite:
+    def to_game_object(self, spaces_map: Mapping[str, tuple[int, int]]) -> Sprite:
+        position = spaces_map[self.space_name]
         image = resolve_image_path(self.image_path)
         return Sprite(
-            position=self.position,
+            position=position,
             image=image,
             name=self.name,
         )
@@ -87,7 +88,7 @@ def _parse_spaces_map(sexpr: Any) -> dict[str, tuple[int, int]]:
         raise InputParseError("Expected (spaces ...) form")
 
     entries = cattrs.structure(sexpr[1:], list[tuple[str, tuple[int, int]]])
-    return dict(entries)
+    return {k: (v[1], v[0]) for k, v in entries}  # Load (x y) from file and store as (y, x)
 
 
 def _parse_objects(sexpr: Any) -> list[ObjectData]:

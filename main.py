@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
     # Add initial objects to the game board.
     for obj in input_file.objects:
-        game_obj = obj.to_game_object()
+        game_obj = obj.to_game_object(input_file.spaces_map)
         game_renderer.engine.add_object(game_obj)
         board.add_player(game_obj, input_file.config.start_space, silently=True)
 
