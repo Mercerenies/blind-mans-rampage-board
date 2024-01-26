@@ -26,9 +26,18 @@ class MovePlayerCommand(Command):
         board.move_player(self.player_name, self.destination_space)
 
 
+@dataclass(frozen=True)
+class WaitCommand(Command):
+    frames: int
+
+    def execute(self, board: Board) -> None:
+        board.delegate.wait(self.frames)
+
+
 COMMAND_REGISTRY: dict[str, type]
 COMMAND_REGISTRY = {
     'move': MovePlayerCommand,
+    'wait': WaitCommand,
 }
 
 

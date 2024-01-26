@@ -1,6 +1,7 @@
 
 (configuration
-  :background-image "/home/silvio/Pictures/BlindMansRampage/Game1/Floor1/BlindManFloor1_DEBUG.png")
+  :background-image "/home/silvio/Pictures/BlindMansRampage/Game1/Floor1/BlindManFloor1_DEBUG.png"
+  :fps 60)
 
 (spaces
   (upper-shop (120 90))
@@ -30,4 +31,5 @@
   (object mercerenies "discord:87351108317491200" start))
 
 (commands
-  (move mercerenies center-gray))
+  (move mercerenies center-gray)
+  (wait 60))
