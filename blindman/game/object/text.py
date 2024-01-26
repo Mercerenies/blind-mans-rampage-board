@@ -1,6 +1,6 @@
 
 from .base import GameObject
-from blindman.util import draw_text, TextAlign
+from blindman.util import draw_text_multiline, TextAlign
 
 import numpy as np
 import cv2
@@ -35,7 +35,7 @@ class Text(GameObject):
 
     def draw(self, frame_number: int, canvas: np.ndarray) -> None:
         display_height, display_width, _ = canvas.shape
-        draw_text(
+        draw_text_multiline(
             image=canvas,
             text=self.text,
             origin=(display_height - self.offset_from_bottom, display_width // 2),

@@ -1,7 +1,7 @@
 
 from __future__ import annotations
 
-from .text import draw_text, TextAlign
+from .text import draw_text, draw_text_multiline, TextAlign
 
 import attrs
 import numpy as np
@@ -12,7 +12,7 @@ from typing import Iterable, Iterator, TypeVar, Literal, overload
 __all__ = (
     'MAX_BYTE', 'ALPHA_CHANNEL',
     'attrs_field_names', 'pluck', 'draw', 'lerp', 'batched', 'pairs',
-    'draw_text', 'TextAlign',
+    'draw_text', 'draw_text_multiline', 'TextAlign',
 )
 
 MAX_BYTE = 255

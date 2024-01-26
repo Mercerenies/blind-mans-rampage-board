@@ -35,6 +35,44 @@ def draw_text(
     cv2.putText(image, text, (origin[1], origin[0]), font, font_scale, color, thickness)
 
 
+def draw_text_multiline(
+        image: np.ndarray,
+        text: str,
+        origin: tuple[int, int],  # (height, width)
+        *,
+        align: TextAlign = TextAlign.BOTTOM_LEFT,
+        font: int = cv2.FONT_HERSHEY_SIMPLEX,
+        color: tuple[int, int, int, int],
+        font_scale: float,
+        thickness: int,
+) -> None:
+    (_, em_height), baseline = cv2.getTextSize("M", font, font_scale, thickness)
+    line_height = em_height + baseline
+    lines = text.split("\n")
+
+    # Adjust origin to start at the first line
+    if align in (TextAlign.TOP_LEFT, TextAlign.TOP_CENTER, TextAlign.TOP_RIGHT):
+        # Already correct
+        pass
+    elif align in (TextAlign.MIDDLE_LEFT, TextAlign.MIDDLE_CENTER, TextAlign.MIDDLE_RIGHT):
+        origin = (origin[0] - line_height * (len(lines) - 1) // 2, origin[1])
+    else:
+        origin = (origin[0] - line_height * (len(lines) - 1), origin[1])
+
+    for line in lines:
+        draw_text(
+            image,
+            line,
+            origin,
+            align=align,
+            font=font,
+            color=color,
+            font_scale=font_scale,
+            thickness=thickness,
+        )
+        origin = (origin[0] + line_height, origin[1])
+
+
 def adjust_origin(origin: tuple[int, int], text_box: tuple[int, int], alignment: TextAlign) -> tuple[int, int]:
     text_height, text_width = text_box
     origin_y, origin_x = origin
