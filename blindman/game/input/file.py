@@ -1,7 +1,7 @@
 
 from .config import Configuration
-from .object import Sprite
-from .error import InputParseError
+from blindman.game.object import Sprite
+from blindman.game.error import InputParseError
 from blindman.lisp import parse_many, Symbol
 from blindman.discord import get_avatar
 

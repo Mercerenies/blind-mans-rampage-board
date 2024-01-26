@@ -1,5 +1,5 @@
 
-from .config import Configuration
+from .input import Configuration
 from .engine import GameEngine
 from blindman.renderer import FrameRenderer
 

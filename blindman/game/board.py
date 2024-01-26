@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from blindman.game.object.sprite import Sprite
-from blindman.game.object.event_manager import Event, create_object_event
+from blindman.game.object.events import Event, create_object_event
 
 from attrs import define, field
 

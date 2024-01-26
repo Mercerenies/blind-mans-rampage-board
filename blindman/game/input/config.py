@@ -1,7 +1,7 @@
 
 from __future__ import annotations
 
-from .error import InputParseError
+from blindman.game.error import InputParseError
 from blindman.lisp import parse_key_value_list
 
 from dataclasses import dataclass, KW_ONLY

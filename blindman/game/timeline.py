@@ -1,7 +1,7 @@
 
 from __future__ import annotations
 
-from blindman.game.object.event_manager import EventManager, Event
+from blindman.game.object.events import EventManager, Event
 
 from attrs import define, field
 
