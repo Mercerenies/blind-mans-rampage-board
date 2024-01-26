@@ -9,24 +9,25 @@ from attrs import define, field
 from typing import Protocol
 
 
-@define
+@define(eq=False)
 class Board:
     delegate: BoardEventDelegate
     spaces_map: dict[str, tuple[int, int]]  # Maps space name position
-    player_map: dict[str, str] = field(factory=dict)  # Maps player name to space name
+    player_map: dict[str, str] = field(init=False, factory=dict)  # Maps player name to space name
 
-    def __init__(self, spaces_map: dict[str, tuple[int, int]]):
-        self.spaces_map = spaces_map
-        self.player_map = {}
-
-    def add_player(self, player: Sprite, starting_space: str) -> None:
+    def add_player(self, player: Sprite, starting_space: str, *, silently: bool = False) -> None:
         player_name = player.name
         if player_name is None:
             raise ValueError("Player sprite must have a name to be stored in a Board instance")
         if player_name in self.player_map:
             raise ValueError(f"Player {player_name} already exists")
+        if starting_space not in self.spaces_map:
+            raise ValueError(f"Space {starting_space} does not exist")
         self.player_map[player_name] = starting_space
-        self.delegate.append_event(create_object_event(lambda _: player))
+        if not silently:
+            # Assume the object was there from the beginning, so don't
+            # emit an event to spawn it.
+            self.delegate.append_event(create_object_event(lambda _: player))
 
 
 class BoardEventDelegate(Protocol):

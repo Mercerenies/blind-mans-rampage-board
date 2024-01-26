@@ -17,6 +17,7 @@ class Configuration:
     _: KW_ONLY
     fps: int = DEFAULT_FPS
     background_image: str
+    start_space: str = "start"
 
     @classmethod
     def from_sexpr(cls, sexpr: Any) -> Configuration:

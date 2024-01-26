@@ -1,18 +1,31 @@
 
 from blindman.renderer import VideoRenderer
-from blindman.game import GameRenderer, InputFile
+from blindman.game import GameRenderer, InputFile, Board, Timeline
 from blindman.game.object import EventManager
 
-input_file = InputFile.read_file("example.lisp")
+if __name__ == "__main__":
+    input_file = InputFile.read_file("example.lisp")
 
-game_renderer = GameRenderer(config=input_file.config)
-video_renderer = VideoRenderer(frame_renderer=game_renderer)
-for obj in input_file.objects:
-    game_renderer.engine.add_object(obj.to_game_object())
+    # Set up the renderer and control objects.
+    game_renderer = GameRenderer(config=input_file.config)
+    event_manager = EventManager(game_renderer.engine)
+    game_renderer.engine.add_object(event_manager)
 
-event_manager = EventManager(game_renderer.engine)
-game_renderer.engine.add_object(event_manager)
-#event_manager.append_event(0, MoveObjectEvent.factory("star", (256, 256), 60))
+    # Set up the timeline and board manager.
+    timeline = Timeline(manager=event_manager)
+    board = Board(
+        delegate=timeline,
+        spaces_map=input_file.spaces_map,
+    )
 
-video_renderer.render('tmp.mp4')
-print("Done.")
+    # Add initial objects to the game board.
+    for obj in input_file.objects:
+        game_obj = obj.to_game_object()
+        game_renderer.engine.add_object(game_obj)
+        board.add_player(game_obj, input_file.config.start_space, silently=True)
+
+    print(board)
+
+    video_renderer = VideoRenderer(frame_renderer=game_renderer)
+    video_renderer.render('tmp.mp4')
+    print("Done.")

@@ -1,6 +1,6 @@
 
 from .config import Configuration
-from .object import GameObject, Sprite
+from .object import Sprite
 from .error import InputParseError
 from blindman.lisp import parse_many, Symbol
 from blindman.discord import get_avatar
@@ -55,7 +55,7 @@ class ObjectData:
             raise InputParseError("Expected (object ...) form")
         return cattrs.structure_attrs_fromtuple(tuple(sexpr[1:]), cls)
 
-    def to_game_object(self) -> GameObject:
+    def to_game_object(self) -> Sprite:
         image = resolve_image_path(self.image_path)
         return Sprite(
             position=self.position,
