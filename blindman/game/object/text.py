@@ -3,16 +3,27 @@ from .base import GameObject
 
 import numpy as np
 import cv2
-
+from attrs import define, field
 
 TEXT_OBJECT_NAME = "__text"
+SOLID_BLACK = (0, 0, 0, 255)
+
+Color = tuple[int, int, int, int]
 
 
+@define
 class Text(GameObject):
+    """Singleton object which draws text at the lower-center of the
+    grid. Only one can exist per GameEngine at a time."""
+    text: str = field()
+    font: int = field(kw_only=True, default=cv2.FONT_HERSHEY_SIMPLEX)
+    font_scale: float = field(kw_only=True, converter=float, default=0.75)
+    thickness: int = field(kw_only=True, default=2)
+    color: Color = field(kw_only=True, default=SOLID_BLACK)
+    offset_from_bottom: int = field(kw_only=True, default=32)
 
-    def __init__(self, text: str) -> None:
+    def __attrs_pre_init__(self) -> None:
         super().__init__()
-        self.text = text
 
     @property
     def name(self) -> str:
@@ -22,11 +33,7 @@ class Text(GameObject):
         pass  # Status text is a static object; it does not move on its own
 
     def draw(self, frame_number: int, canvas: np.ndarray) -> None:
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        font_scale = 1
-        color = (0, 0, 0, 255)
-        thickness = 2
-        (text_width, _), _ = cv2.getTextSize(self.text, font, font_scale, thickness)
+        (text_width, _), _ = cv2.getTextSize(self.text, self.font, self.font_scale, self.thickness)
         display_height, display_width, _ = canvas.shape
-        pos = ((display_width - text_width) // 2, display_height - 32)
-        cv2.putText(canvas, self.text, pos, font, font_scale, color, thickness)
+        pos = ((display_width - text_width) // 2, display_height - self.offset_from_bottom)
+        cv2.putText(canvas, self.text, pos, self.font, self.font_scale, self.color, self.thickness)
