@@ -3,12 +3,15 @@
 
 from __future__ import annotations
 
-from .board import Board, BoardEventDelegate
 from blindman.game.object.events import MoveObjectController
 
 from attrs import define, field, evolve
 
 from enum import IntEnum, auto
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .board import Board, BoardEventDelegate
 
 
 class MovementType(IntEnum):

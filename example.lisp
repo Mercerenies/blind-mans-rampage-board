@@ -28,3 +28,6 @@
   (object star "/home/silvio/Documents/star.png" upper-shop)
   (object star1 "/home/silvio/Documents/star.png" start)
   (object mercerenies "discord:87351108317491200" start))
+
+(commands
+  (move mercerenies center-gray))

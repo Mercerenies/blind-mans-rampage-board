@@ -1,15 +1,15 @@
 
 from blindman.renderer import VideoRenderer
-from blindman.game import GameRenderer, InputFile, Board, Timeline
+from blindman.game import GameRenderer, InputFile, Board, Timeline, GameEngine
 from blindman.game.object import EventManager
 
 if __name__ == "__main__":
     input_file = InputFile.read_file("example.lisp")
 
     # Set up the renderer and control objects.
-    game_renderer = GameRenderer(config=input_file.config)
-    event_manager = EventManager(game_renderer.engine)
-    game_renderer.engine.add_object(event_manager)
+    game_engine = GameEngine()
+    event_manager = EventManager(game_engine)
+    game_engine.add_object(event_manager)
 
     # Set up the timeline and board manager.
     timeline = Timeline(manager=event_manager)
@@ -32,10 +32,17 @@ if __name__ == "__main__":
     # Position the players in the initial frame.
     for game_obj in all_game_objects:
         game_obj.position = board.get_position(game_obj.name)
-        game_renderer.engine.add_object(game_obj)
+        game_engine.add_object(game_obj)
 
-    print(board)
+    # Play out the commands in order.
+    for command in input_file.commands:
+        command.execute(board)
 
+    game_renderer = GameRenderer(
+        config=input_file.config,
+        engine=game_engine,
+        total_frames=timeline.moment,
+    )
     video_renderer = VideoRenderer(frame_renderer=game_renderer)
     video_renderer.render('tmp.mp4')
     print("Done.")

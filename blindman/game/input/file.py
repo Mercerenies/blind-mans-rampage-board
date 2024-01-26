@@ -105,7 +105,7 @@ def _parse_objects(sexpr: Any) -> list[ObjectData]:
 
 def _parse_commands(sexpr: Any) -> list[Command]:
     if not isinstance(sexpr, list):
-        raise InputParseError("Expected a list of objects")
-    if len(sexpr) < 1 or sexpr[0] != Symbol("objects"):
-        raise InputParseError("Expected (objects ...) form")
+        raise InputParseError("Expected a list of commands")
+    if len(sexpr) < 1 or sexpr[0] != Symbol("commands"):
+        raise InputParseError("Expected (commands ...) form")
     return [parse_command(x) for x in sexpr[1:]]

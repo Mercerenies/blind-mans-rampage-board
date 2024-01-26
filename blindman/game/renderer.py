@@ -5,21 +5,26 @@ from blindman.renderer import FrameRenderer
 
 import numpy as np
 import cv2
+from attrs import define, field
 
 
+@define
 class GameRenderer(FrameRenderer):
+    config: Configuration = field()
+    engine: GameEngine = field()
+    _total_frames: int = field()
+    _background_image: np.ndarray = field(init=False)
 
-    def __init__(self, config: Configuration) -> None:
-        self._config = config
-        background_image = cv2.imread(config.background_image, cv2.IMREAD_UNCHANGED)
-        self._background_image = cv2.cvtColor(background_image, cv2.COLOR_BGRA2RGBA)
-        self.engine = GameEngine()
+    @_background_image.default
+    def _background_image_default(self) -> np.ndarray:
+        background_image = cv2.imread(self.config.background_image, cv2.IMREAD_UNCHANGED)
+        return cv2.cvtColor(background_image, cv2.COLOR_BGRA2RGBA)
 
     def total_frames(self) -> int:
-        return 10 * self.fps()  # Ten seconds (until we get a real calculation here)
+        return self._total_frames
 
     def fps(self) -> int:
-        return self._config.fps
+        return self.config.fps
 
     def frame_size(self) -> tuple[int, int]:
         width, height, _ = self._background_image.shape
