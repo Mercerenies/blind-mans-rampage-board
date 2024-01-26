@@ -1,5 +1,6 @@
 
 from .base import GameObject
+from blindman.util import draw_text, TextAlign
 
 import numpy as np
 import cv2
@@ -33,7 +34,14 @@ class Text(GameObject):
         pass  # Status text is a static object; it does not move on its own
 
     def draw(self, frame_number: int, canvas: np.ndarray) -> None:
-        (text_width, _), _ = cv2.getTextSize(self.text, self.font, self.font_scale, self.thickness)
         display_height, display_width, _ = canvas.shape
-        pos = ((display_width - text_width) // 2, display_height - self.offset_from_bottom)
-        cv2.putText(canvas, self.text, pos, self.font, self.font_scale, self.color, self.thickness)
+        draw_text(
+            image=canvas,
+            text=self.text,
+            origin=(display_height - self.offset_from_bottom, display_width // 2),
+            align=TextAlign.BOTTOM_CENTER,
+            font=self.font,
+            color=self.color,
+            font_scale=self.font_scale,
+            thickness=self.thickness,
+        )
