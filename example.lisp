@@ -32,4 +32,5 @@
 
 (commands
   (move mercerenies center-gray)
-  (wait 60))
+  (wait 60)
+  (swap star mercerenies))
