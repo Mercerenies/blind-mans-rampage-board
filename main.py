@@ -19,10 +19,20 @@ if __name__ == "__main__":
     )
 
     # Add initial objects to the game board.
+    all_game_objects = []
     for obj in input_file.objects:
         game_obj = obj.to_game_object(input_file.spaces_map)
+        all_game_objects.append(game_obj)
+        board.add_player(
+            player=game_obj,
+            starting_space=obj.space_name,
+            silently=True,
+        )
+
+    # Position the players in the initial frame.
+    for game_obj in all_game_objects:
+        game_obj.position = board.get_position(game_obj.name)
         game_renderer.engine.add_object(game_obj)
-        board.add_player(game_obj, input_file.config.start_space, silently=True)
 
     print(board)
 

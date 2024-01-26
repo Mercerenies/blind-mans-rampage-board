@@ -16,13 +16,19 @@ Event = Callable[[GameEngine], None]
 
 
 class EventManager(GameObject):
+    _name: str
     _events: dict[int, list[Event]]
     _game: GameEngine
 
     def __init__(self, game: GameEngine, name: str = EVENT_MANAGER_NAME) -> None:
-        super().__init__(name=name)
+        super().__init__()
+        self._name = name
         self._events = defaultdict(list)
         self._game = game
+
+    @property
+    def name(self) -> str:
+        return self._name
 
     def append_event(self, event_time: int, event: Event) -> None:
         self._events[event_time].append(event)
@@ -52,7 +58,7 @@ def many(events: Iterable[Event]) -> Event:
 class MoveObjectController(GameObject):
 
     def __init__(self, game: GameEngine, object_name: str, new_pos: tuple[int, int], total_frames: int) -> None:
-        super().__init__(name=None)
+        super().__init__()
         self._game = game
         self._object_name = object_name
         self._frames = 0
@@ -60,6 +66,10 @@ class MoveObjectController(GameObject):
 
         self._old_pos = game.find_object(object_name).position
         self._new_pos = new_pos
+
+    @property
+    def name(self) -> str | None:
+        return None
 
     def step(self, frame_number: int) -> None:
         self._frames += 1
