@@ -6,13 +6,16 @@ from .text import draw_text, draw_text_multiline, TextAlign
 import attrs
 import numpy as np
 
+from contextlib import contextmanager
 import itertools
-from typing import Iterable, Iterator, TypeVar, Literal, overload
+import os
+from typing import Iterable, Iterator, TypeVar, Literal, overload, Generator
 
 __all__ = (
     'MAX_BYTE', 'ALPHA_CHANNEL',
     'attrs_field_names', 'pluck', 'draw', 'lerp', 'batched', 'pairs',
     'draw_text', 'draw_text_multiline', 'TextAlign',
+    'cwd',
 )
 
 MAX_BYTE = 255
@@ -72,3 +75,11 @@ def batched(iterable: Iterable[_T], n: int) -> Iterator[tuple[_T, ...]]:
 
 def pairs(iterable: Iterable[_T]) -> Iterator[tuple[_T, _T]]:
     return batched(iterable, 2)
+
+
+@contextmanager
+def cwd(new_cwd: str) -> Generator[None, None, None]:
+    old_cwd = os.getcwd()
+    os.chdir(new_cwd)
+    yield
+    os.chdir(old_cwd)
