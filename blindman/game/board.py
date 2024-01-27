@@ -1,8 +1,6 @@
 
 from __future__ import annotations
 
-from blindman.game.object.sprite import Sprite
-
 from attrs import define, field
 
 from collections import defaultdict
@@ -30,6 +28,11 @@ class Board:
         self._player_map[player_name] = starting_space
         self._position_map[starting_space].append(player_name)
 
+    def remove_player(self, player_name: str) -> None:
+        space = self._player_map[player_name]
+        del self._player_map[player_name]
+        self._position_map[space].remove(player_name)
+
     def move_player(self, player_name: str, destination_space: str) -> None:
         source_space = self._player_map[player_name]
         self._position_map[source_space].remove(player_name)
@@ -55,6 +58,10 @@ class Board:
             self.move_player(player_name, destination_space)
         else:
             self.add_player(player_name, destination_space)
+
+    def __delitem__(self, player_name: str) -> None:
+        """Alias for self.remove_player."""
+        self.remove_player(player_name)
 
     def get_position(self, player_name: str) -> tuple[int, int]:
         space = self.get_space(player_name)

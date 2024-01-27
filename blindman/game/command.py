@@ -3,8 +3,10 @@ from .board import Board
 from .timeline import TimelineLike
 from .error import InputParseError
 from .movement import MovementPlanner, MovementType
+from .image import resolve_image_path
+from blindman.game.object.sprite import Sprite
 from blindman.game.object.text import Text, TEXT_OBJECT_NAME
-from blindman.game.object.events import destroy_object_event
+from blindman.game.object.events import destroy_object_event, create_object_event
 
 import cattrs
 
@@ -45,6 +47,32 @@ class SwapPlayerCommand(Command):
             planner.add_player(self.first_player, MovementType.LONG)
             planner.add_player(self.second_player, MovementType.LONG)
             board[self.first_player], board[self.second_player] = board[self.second_player], board[self.first_player]
+
+
+@dataclass(frozen=True)
+class AddPlayerCommand(Command):
+    player_name: str
+    image_path: str
+    space: str
+
+    def execute(self, board: Board, timeline: TimelineLike) -> None:
+        with MovementPlanner(board, timeline):  # Movement planner for same-space adjustments
+            position = board.spaces_map[self.space]
+            image = resolve_image_path(self.image_path)
+            board[self.player_name] = self.space
+            event = create_object_event(lambda _: Sprite(position, image, self.player_name))
+            timeline.append_event(event)
+
+
+@dataclass(frozen=True)
+class DestroyPlayerCommand(Command):
+    player_name: str
+
+    def execute(self, board: Board, timeline: TimelineLike) -> None:
+        with MovementPlanner(board, timeline):  # Movement planner for same-space adjustments
+            del board[self.player_name]
+            event = destroy_object_event(self.player_name)
+            timeline.append_event(event)
 
 
 @dataclass(frozen=True)
