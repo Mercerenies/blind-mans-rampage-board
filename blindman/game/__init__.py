@@ -11,7 +11,7 @@ __all__ = (
     'Configuration',
     'GameEngine',
     'GameObject',
-    'InputFile', 'Configuration'
+    'InputFile', 'Configuration',
     'Board',
     'Timeline',
 )
