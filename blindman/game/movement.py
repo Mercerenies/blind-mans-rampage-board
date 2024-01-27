@@ -32,7 +32,7 @@ MOVEMENT_LENGTHS = {
 }
 
 
-@define
+@define(eq=False)
 class MovementPlanner:
     """Class to generate move events.
 

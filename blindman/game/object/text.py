@@ -12,7 +12,7 @@ SOLID_BLACK = (0, 0, 0, 255)
 Color = tuple[int, int, int, int]
 
 
-@define
+@define(eq=False)
 class Text(GameObject):
     """Singleton object which draws text at the lower-center of the
     grid. Only one can exist per GameEngine at a time."""

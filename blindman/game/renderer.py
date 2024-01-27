@@ -8,7 +8,7 @@ import cv2
 from attrs import define, field
 
 
-@define
+@define(eq=False)
 class GameRenderer(FrameRenderer):
     config: Configuration = field()
     engine: GameEngine = field()
