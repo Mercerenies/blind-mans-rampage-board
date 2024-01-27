@@ -110,6 +110,8 @@ COMMAND_REGISTRY: dict[str, type]
 COMMAND_REGISTRY = {
     'move': MovePlayerCommand,
     'swap': SwapPlayerCommand,
+    'add': AddPlayerCommand,
+    'remove': DestroyPlayerCommand,
     'text': SetTextCommand,
     'hide-text': ResetTextCommand,
     'wait': WaitCommand,

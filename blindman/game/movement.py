@@ -92,11 +92,18 @@ class MovementPlanner:
         """Update all player objects in the current movement to mark
         their current position on the board as their destination."""
         for player_name in self._players:
+            if player_name not in self._board:
+                # Player was removed during movement, do not animate.
+                continue
             destination = self._board.get_position(player_name)
             self._players[player_name] = evolve(self._players[player_name], destination=destination)
 
     def produce_movement(self) -> None:
         for player in self._players.values():
+            if player.player_name not in self._board:
+                # Player was removed during movement, do not animate.
+                continue
+
             total_frames = MOVEMENT_LENGTHS[player.movement_type]
             if player.source == player.destination:
                 continue  # Do not make an event out of a trivial movement.
