@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from .base import GameObject
+from .sprite import Sprite
 from blindman.game.engine import GameEngine
 from blindman.util import lerp
 
@@ -70,7 +71,10 @@ class MoveObjectController(GameObject):
         self._frames = 0
         self._total_frames = total_frames
 
-        self._old_pos = game.find_object(object_name).position
+        target = game.find_object(object_name)
+        assert isinstance(target, Sprite)
+
+        self._old_pos = target.position
         self._new_pos = new_pos
 
     @property
@@ -82,7 +86,11 @@ class MoveObjectController(GameObject):
         lerp_amount = self._frames / self._total_frames
         pos_y = int(lerp(self._old_pos[0], self._new_pos[0], lerp_amount))
         pos_x = int(lerp(self._old_pos[1], self._new_pos[1], lerp_amount))
-        self._game.find_object(self._object_name).position = (pos_y, pos_x)
+
+        target = self._game.find_object(self._object_name)
+        assert isinstance(target, Sprite)
+
+        target.position = (pos_y, pos_x)
         if self._frames >= self._total_frames:
             self._game.remove_object(self)
 

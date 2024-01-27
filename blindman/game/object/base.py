@@ -5,10 +5,6 @@ from abc import ABC, abstractmethod
 
 
 class GameObject(ABC):
-    position: tuple[int, int]
-
-    def __init__(self) -> None:
-        self.position = (0, 0)
 
     @property
     @abstractmethod
