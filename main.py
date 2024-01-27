@@ -3,8 +3,18 @@ from blindman.renderer import VideoRenderer
 from blindman.game import GameRenderer, InputFile, Board, Timeline, GameEngine
 from blindman.game.object import EventManager
 
-if __name__ == "__main__":
-    input_file = InputFile.read_file("example.lisp")
+import argparse
+import os
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('input_file', type=str, help='The input .lisp file to read')
+    parser.add_argument('-o', '--output-filename', required=True, type=str, help='The output path to write to')
+    return parser.parse_args()
+
+
+def compile(input_file: InputFile, output_filename: str) -> None:
 
     # Set up the renderer and control objects.
     game_engine = GameEngine()
@@ -39,5 +49,16 @@ if __name__ == "__main__":
         total_frames=timeline.moment,
     )
     video_renderer = VideoRenderer(frame_renderer=game_renderer)
-    video_renderer.render('tmp.mp4')
+    video_renderer.render(output_filename)
+
+
+if __name__ == "__main__":
+    args = parse_args()
+    input_file = InputFile.read_file(args.input_file)
+
+    # Interpret relative paths in the .lisp file relative to its directory
+    cwd = os.path.dirname(os.path.abspath(args.input_file))
+    os.chdir(cwd)
+
+    compile(input_file, args.output_filename)
     print("Done.")
