@@ -13,7 +13,8 @@ DEFAULT_FPS = 60
 
 @dataclass(frozen=True)
 class Configuration:
-    """Configuration for a render input file."""
+    """Configuration for a render input file. This corresponds to the
+    (configuration ...) block at the beginning of the file."""
     _: KW_ONLY
     fps: int = DEFAULT_FPS
     background_image: str

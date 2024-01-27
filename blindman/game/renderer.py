@@ -10,6 +10,11 @@ from attrs import define, field
 
 @define(eq=False)
 class GameRenderer(FrameRenderer):
+    """A FrameRenderer for rendering the game room based on a
+    GameEngine.
+
+    """
+
     config: Configuration = field()
     engine: GameEngine = field()
     _total_frames: int = field()

@@ -99,6 +99,10 @@ class MovementPlanner:
             self._players[player_name] = evolve(self._players[player_name], destination=destination)
 
     def produce_movement(self) -> None:
+        """Writes zero or more movement events to the planner's
+        timeline.
+
+        """
         for player in self._players.values():
             if player.player_name not in self._board:
                 # Player was removed during movement, do not animate.
@@ -122,6 +126,13 @@ class MovementPlanner:
 
 @define(frozen=True)
 class PlayerMovement:
+    """The data stored in a MovementPlanner about a particular player.
+
+    Users external to this module should generally not need to
+    interface directly with this type.
+
+    """
+
     player_name: str = field()
     movement_type: MovementType = field()
     source: tuple[int, int] = field()

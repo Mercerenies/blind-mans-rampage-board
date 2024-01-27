@@ -8,6 +8,10 @@ import numpy as np
 
 @define(eq=False)
 class Sprite(GameObject):
+    """A sprite which draws itself centered at the given position. The
+    position and alpha value are mutable, which can be used to animate
+    the sprite."""
+
     position: tuple[int, int]
     image: np.ndarray
     _name: str

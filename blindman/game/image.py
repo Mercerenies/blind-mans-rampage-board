@@ -8,6 +8,16 @@ DISCORD_AVATAR_SIZE = 32
 
 
 def resolve_image_path(image_path: str) -> np.ndarray:
+    """Load the image at the given path as a numpy array.
+
+    If the path starts with "discord:", then it is read as a Discord
+    user ID and loads the avatar for the given Discord user. In that
+    case, the DISCORD_BOT_TOKEN environment variable must be set.
+
+    In any other case, the path is treated as a file path on the local
+    file system.
+
+    """
     if image_path.startswith('discord:'):
         return _load_discord_image(image_path[8:])
     else:

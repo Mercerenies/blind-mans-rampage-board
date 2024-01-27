@@ -1,4 +1,7 @@
 
+"""The input file itself and miscellaneous helper functions and types
+supporting it."""
+
 from .config import Configuration
 from blindman.game.image import resolve_image_path
 from blindman.game.command import Command, parse_command
@@ -15,6 +18,8 @@ from pathlib import Path
 
 @dataclass(frozen=True)
 class InputFile:
+    """The full data of a .lisp input file."""
+
     config: Configuration
     spaces_map: dict[str, tuple[int, int]]
     objects: list['ObjectData']
@@ -22,6 +27,11 @@ class InputFile:
 
     @classmethod
     def read_file(cls, file: str | TextIO) -> 'InputFile':
+        """Reads a file or file-like object as an input file. If the
+        argument is a string, it is treated as a filename. Otherwise,
+        it is treated as a file-like object.
+
+        """
         if isinstance(file, TextIO):
             file = file.read()
         else:
@@ -44,6 +54,13 @@ class InputFile:
 
 @dataclass(frozen=True)
 class ObjectData:
+    """Data on a single object which is initially present in the game
+    room. image_path will be resolved using
+    blindman.game.image.resolve_image_path and follows the same rules
+    as that function's argument.
+
+    """
+
     name: str
     image_path: str
     space_name: str
