@@ -2,19 +2,18 @@
 from .base import GameObject
 from blindman.util import draw
 
+from attrs import define
 import numpy as np
 
 
+@define(eq=False)
 class Sprite(GameObject):
-    _name: str
-    image: np.ndarray
     position: tuple[int, int]
+    image: np.ndarray
+    _name: str
 
-    def __init__(self, position: tuple[int, int], image: np.ndarray, name: str) -> None:
+    def __attrs_pre_init__(self) -> None:
         super().__init__()
-        self._name = name
-        self.image = image
-        self.position = position
 
     @property
     def name(self) -> str:

@@ -6,6 +6,7 @@ from .sprite import Sprite
 from blindman.game.engine import GameEngine
 from blindman.util import lerp
 
+from attrs import define, field
 import numpy as np
 
 from collections import defaultdict
@@ -16,16 +17,14 @@ EVENT_MANAGER_NAME = '__eventmanager'
 Event = Callable[[GameEngine], None]
 
 
+@define(eq=False)
 class EventManager(GameObject):
-    _name: str
-    _events: dict[int, list[Event]]
-    _game: GameEngine
+    _game: GameEngine = field()
+    _name: str = field(default=EVENT_MANAGER_NAME)
+    _events: dict[int, list[Event]] = field(init=False, factory=lambda: defaultdict(list))
 
-    def __init__(self, game: GameEngine, name: str = EVENT_MANAGER_NAME) -> None:
+    def __attrs_pre_init__(self) -> None:
         super().__init__()
-        self._name = name
-        self._events = defaultdict(list)
-        self._game = game
 
     @property
     def name(self) -> str:
@@ -62,20 +61,24 @@ def many(events: Iterable[Event]) -> Event:
     return _execute_all
 
 
+@define(eq=False)
 class MoveObjectController(GameObject):
+    _game: GameEngine
+    _object_name: str
+    _new_pos: tuple[int, int]
+    _total_frames: int
 
-    def __init__(self, game: GameEngine, object_name: str, new_pos: tuple[int, int], total_frames: int) -> None:
-        super().__init__()
-        self._game = game
-        self._object_name = object_name
-        self._frames = 0
-        self._total_frames = total_frames
+    _frames: int = field(init=False, default=0)
+    _old_pos: tuple[int, int] = field(init=False)
 
-        target = game.find_object(object_name)
+    @_old_pos.default
+    def _old_pos_default(self) -> tuple[int, int]:
+        target = self._game.find_object(self._object_name)
         assert isinstance(target, Sprite)
+        return target.position
 
-        self._old_pos = target.position
-        self._new_pos = new_pos
+    def __attrs_pre_init__(self) -> None:
+        super().__init__()
 
     @property
     def name(self) -> str | None:
