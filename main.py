@@ -2,6 +2,7 @@
 from blindman.renderer import VideoRenderer
 from blindman.game import GameRenderer, InputFile, Board, Timeline, GameEngine
 from blindman.game.object import EventManager
+import blindman.util as util
 
 import argparse
 import os
@@ -14,7 +15,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def compile(input_file: InputFile, output_filename: str) -> None:
+def compile(input_file: InputFile) -> GameRenderer:
 
     # Set up the renderer and control objects.
     game_engine = GameEngine()
@@ -43,22 +44,26 @@ def compile(input_file: InputFile, output_filename: str) -> None:
     for command in input_file.commands:
         command.execute(board, timeline)
 
-    game_renderer = GameRenderer(
+    return GameRenderer(
         config=input_file.config,
         engine=game_engine,
         total_frames=timeline.moment,
     )
-    video_renderer = VideoRenderer(frame_renderer=game_renderer)
-    video_renderer.render(output_filename)
 
 
 if __name__ == "__main__":
     args = parse_args()
     input_file = InputFile.read_file(args.input_file)
 
-    # Interpret relative paths in the .lisp file relative to its directory
-    cwd = os.path.dirname(os.path.abspath(args.input_file))
-    os.chdir(cwd)
+    output_filename = os.path.abspath(args.output_filename)
 
-    compile(input_file, args.output_filename)
+    # Interpret relative paths in the .lisp file relative to its directory
+    working_dir = os.path.dirname(os.path.abspath(args.input_file))
+
+    with util.cwd(working_dir):
+        game_renderer = compile(input_file)
+
+    video_renderer = VideoRenderer(frame_renderer=game_renderer)
+    video_renderer.render(output_filename)
+
     print("Done.")
