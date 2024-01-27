@@ -116,6 +116,7 @@ class MovementPlanner:
             )
 
         max_length = max(MOVEMENT_LENGTHS[m.movement_type] for m in self._players.values())
+        max_length = max(max_length, MOVEMENT_LENGTHS[MovementType.SHORT])
         self._timeline.wait(max_length)
 
 

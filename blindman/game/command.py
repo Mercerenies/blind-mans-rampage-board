@@ -2,11 +2,11 @@
 from .board import Board
 from .timeline import TimelineLike
 from .error import InputParseError
-from .movement import MovementPlanner, MovementType
+from .movement import MovementPlanner, MovementType, MOVEMENT_LENGTHS
 from .image import resolve_image_path
 from blindman.game.object.sprite import Sprite
 from blindman.game.object.text import Text, TEXT_OBJECT_NAME
-from blindman.game.object.events import destroy_object_event, create_object_event
+from blindman.game.object.events import destroy_object_event, create_object_event, FadeObjectController
 
 import cattrs
 
@@ -56,12 +56,15 @@ class AddPlayerCommand(Command):
     space: str
 
     def execute(self, board: Board, timeline: TimelineLike) -> None:
+        animation_time = MOVEMENT_LENGTHS[MovementType.SHORT]
         with MovementPlanner(board, timeline):  # Movement planner for same-space adjustments
             position = board.spaces_map[self.space]
             image = resolve_image_path(self.image_path)
             board[self.player_name] = self.space
-            event = create_object_event(lambda _: Sprite(position, image, self.player_name))
-            timeline.append_event(event)
+
+            def _factory(_):
+                return Sprite(position, image, self.player_name, alpha=0.0)
+            timeline.append_event(FadeObjectController.fade_in_event(_factory, animation_time))
 
 
 @dataclass(frozen=True)
@@ -69,10 +72,10 @@ class DestroyPlayerCommand(Command):
     player_name: str
 
     def execute(self, board: Board, timeline: TimelineLike) -> None:
+        animation_time = MOVEMENT_LENGTHS[MovementType.SHORT]
         with MovementPlanner(board, timeline):  # Movement planner for same-space adjustments
             del board[self.player_name]
-            event = destroy_object_event(self.player_name)
-            timeline.append_event(event)
+            timeline.append_event(FadeObjectController.fade_out_event(self.player_name, animation_time))
 
 
 @dataclass(frozen=True)

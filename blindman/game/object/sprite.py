@@ -2,7 +2,7 @@
 from .base import GameObject
 from blindman.util import draw
 
-from attrs import define
+from attrs import define, field
 import numpy as np
 
 
@@ -11,6 +11,7 @@ class Sprite(GameObject):
     position: tuple[int, int]
     image: np.ndarray
     _name: str
+    alpha: float = field(default=1.0, converter=float)
 
     def __attrs_pre_init__(self) -> None:
         super().__init__()
@@ -23,4 +24,4 @@ class Sprite(GameObject):
         pass  # Sprites are static objects; they do not move on their own
 
     def draw(self, frame_number: int, canvas: np.ndarray) -> None:
-        draw(canvas, self.image, self.position)
+        draw(canvas, self.image, self.position, alpha=self.alpha)
