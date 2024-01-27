@@ -94,8 +94,18 @@ class _LispParser:
         return lst
 
     def skip_whitespace(self) -> None:
-        while self.pos < len(self._input_str) and self.peek() in " \t\n":
+        while self.pos < len(self._input_str) and self.peek() in " \t\n;":
+            if self.peek() == ';':
+                self._skip_line_comment()
+            else:
+                self.pos += 1
+
+    def _skip_line_comment(self) -> None:
+        self.pop()  # Consume semicolon
+        while self.pos < len(self._input_str) and self.peek() != '\n':
             self.pos += 1
+        if self.pos < len(self._input_str):
+            self.pop()  # Consume newline
 
 
 class LispParseError(Exception):
