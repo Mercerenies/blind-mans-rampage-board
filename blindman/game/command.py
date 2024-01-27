@@ -98,7 +98,10 @@ class SetTextCommand(Command):
 class ResetTextCommand(Command):
 
     def execute(self, board: Board, timeline: TimelineLike) -> None:
-        timeline.append_event(destroy_object_event(TEXT_OBJECT_NAME))
+        def _event(engine: 'GameEngine') -> None:
+            if engine.has_object(TEXT_OBJECT_NAME):
+                engine.remove_object(TEXT_OBJECT_NAME)
+        timeline.append_event(_event)
 
 
 @dataclass(frozen=True)
