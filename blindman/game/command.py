@@ -1,4 +1,6 @@
 
+"""Commands that affect the board and timeline."""
+
 from .board import Board
 from .timeline import TimelineLike
 from .error import InputParseError
@@ -6,7 +8,7 @@ from .movement import MovementPlanner, MovementType, MOVEMENT_LENGTHS
 from .image import resolve_image_path
 from blindman.game.object.sprite import Sprite
 from blindman.game.object.text import Text, TEXT_OBJECT_NAME
-from blindman.game.object.events import destroy_object_event, create_object_event, FadeObjectController
+from blindman.game.object.events import FadeObjectController
 
 import cattrs
 
@@ -28,6 +30,8 @@ class Command(ABC):
 
 @dataclass(frozen=True)
 class MovePlayerCommand(Command):
+    """Command to move the player to a new space."""
+
     player_name: str
     destination_space: str
 
@@ -39,6 +43,12 @@ class MovePlayerCommand(Command):
 
 @dataclass(frozen=True)
 class SwapPlayerCommand(Command):
+    """Command to swap the positions of two players.
+
+    Precondition: first_player != second_player
+
+    """
+
     first_player: str
     second_player: str
 
@@ -51,6 +61,9 @@ class SwapPlayerCommand(Command):
 
 @dataclass(frozen=True)
 class AddPlayerCommand(Command):
+    """Command to add a new player to the board, with a fade-in
+    animation."""
+
     player_name: str
     image_path: str
     space: str
@@ -69,6 +82,9 @@ class AddPlayerCommand(Command):
 
 @dataclass(frozen=True)
 class DestroyPlayerCommand(Command):
+    """Command to remove a player from the board, with a fade-out
+    animation."""
+
     player_name: str
 
     def execute(self, board: Board, timeline: TimelineLike) -> None:
@@ -80,6 +96,8 @@ class DestroyPlayerCommand(Command):
 
 @dataclass(frozen=True)
 class SetTextCommand(Command):
+    """Command to set the status text for the image, which is
+    displayed at the bottom-center of the canvas."""
     text: str
 
     def execute(self, board: Board, timeline: TimelineLike) -> None:
@@ -96,6 +114,8 @@ class SetTextCommand(Command):
 
 @dataclass(frozen=True)
 class ResetTextCommand(Command):
+    """Command to remove the text from the canvas. No-op if there is
+    no text object currently present."""
 
     def execute(self, board: Board, timeline: TimelineLike) -> None:
         def _event(engine: 'GameEngine') -> None:
@@ -106,6 +126,7 @@ class ResetTextCommand(Command):
 
 @dataclass(frozen=True)
 class WaitCommand(Command):
+    """Command to wait silently for the specified number of frames."""
     frames: int
 
     def execute(self, board: Board, timeline: TimelineLike) -> None:
@@ -125,6 +146,10 @@ COMMAND_REGISTRY = {
 
 
 def parse_command(command_sexpr: Any) -> Command:
+    """Parses the S-expression-like object into an appropriate Command
+    subclass.
+
+    """
     if not isinstance(command_sexpr, list):
         raise InputParseError(f"Expected list for command, got {command_sexpr}")
     if not command_sexpr:

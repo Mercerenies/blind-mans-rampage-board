@@ -1,4 +1,6 @@
 
+"""Miscellaneous utility functions."""
+
 from __future__ import annotations
 
 from .text import draw_text, draw_text_multiline, TextAlign
@@ -30,10 +32,14 @@ _T_number = TypeVar("_T_number", int, float)
 
 
 def attrs_field_names(cls: type) -> list[str]:
+    """Returns a list of the field names defined on an attrs class, in
+    definition order."""
     return [f.name for f in attrs.fields(cls)]
 
 
 def pluck(dictionary: dict[_K, _V], keys: Iterable[_K]) -> dict[_K, _V]:
+    """Retrieves only the given keys from the dictionary, returning a
+    new dictionary. Raises KeyError on missing keys."""
     return {k: dictionary[k] for k in keys if k in dictionary}
 
 
@@ -44,6 +50,12 @@ def draw(
         *,
         alpha: float = 1.0,
 ) -> None:
+    """Draws the source image to the destination, centered at the
+    given position. An optional alpha channel multiplier can be
+    provided. If provided, it shall be a number from 0.0 to 1.0, where
+    0.0 is completely transparent and 1.0 is completely opaque.
+
+    """
     upperleft_y, upperleft_x = center[0] - source.shape[0] // 2, center[1] - source.shape[1] // 2
     lowerright_y, lowerright_x = upperleft_y + source.shape[0], upperleft_x + source.shape[1]
     destination_patch = destination[upperleft_y:lowerright_y, upperleft_x:lowerright_x, :]
@@ -65,7 +77,12 @@ def batched(iterable: Iterable[_T], n: Literal[3]) -> Iterator[tuple[_T, _T, _T]
 
 
 def batched(iterable: Iterable[_T], n: int) -> Iterator[tuple[_T, ...]]:
-    """Backport of itertools.batched from Python 3.12+"""
+    """Backport of itertools.batched from Python 3.12+.
+
+    >>> list(batched([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 3))
+    [(1, 2, 3), (4, 5, 6), (7, 8, 9), (10,)]
+
+    """
     if n < 1:
         raise ValueError('n must be at least one')
     it = iter(iterable)
@@ -74,12 +91,18 @@ def batched(iterable: Iterable[_T], n: int) -> Iterator[tuple[_T, ...]]:
 
 
 def pairs(iterable: Iterable[_T]) -> Iterator[tuple[_T, _T]]:
+    """batched() but with an `n` argument of 2."""
     return batched(iterable, 2)
 
 
 @contextmanager
 def cwd(new_cwd: str) -> Generator[None, None, None]:
+    """Sets the current working directory, as a context manager. When
+    the `with` block is exited, the original working directory is
+    restored."""
     old_cwd = os.getcwd()
     os.chdir(new_cwd)
-    yield
-    os.chdir(old_cwd)
+    try:
+        yield
+    finally:
+        os.chdir(old_cwd)

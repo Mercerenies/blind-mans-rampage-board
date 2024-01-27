@@ -1,4 +1,6 @@
 
+"""Main entrypoint for Blind Man's Rampage video renderer."""
+
 from blindman.renderer import VideoRenderer
 from blindman.game import GameRenderer, InputFile, Board, Timeline, GameEngine
 from blindman.game.object import EventManager

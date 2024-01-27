@@ -12,6 +12,9 @@ from copy import copy
 
 
 class GameEngine:
+    """Game engine, which maintains a collection of objects and
+    invokes their callbacks when appropriate."""
+
     _objects: list[GameObject]
 
     def __init__(self) -> None:

@@ -70,4 +70,6 @@ def parse_key_value_list(
 
 
 class DeserializeError(Exception):
+    """Error during deserialization of Lisp-like Python data
+    structures into richer Python classes."""
     pass

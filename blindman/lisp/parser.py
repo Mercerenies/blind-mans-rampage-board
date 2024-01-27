@@ -1,10 +1,29 @@
 
+"""Defines parsing functionality for taking a string and producing
+Python-like data structures.
+
+Currently, this parser supports proper lists, string literals,
+symbols, and integer literals. This parser does NOT support dotted
+lists or any conventional reader macro syntax, such as quoting or
+backquoting.
+
+Additionally, this parser recognizes (and ignores) line comments
+beginning with a semicolon. There is no block comment syntax
+available.
+
+"""
+
 from .symbol import Symbol
 
 from typing import Any
 
 
 def parse(input_str: str) -> Any:
+    """Parses the string into a single S-expression. Expects the
+    S-expression to occupy the whole string (excluding leading and
+    trailing whitespace) and raises an error if not.
+
+    """
     parser = _LispParser(input_str)
     result = parser.parse_sexpr()
     parser.skip_whitespace()
@@ -14,6 +33,12 @@ def parse(input_str: str) -> Any:
 
 
 def parse_many(input_str: str) -> list[Any]:
+    """Parses a sequence of zero or more S-expressions, returning a
+    list of the results. As with parse(), parse_many() expects the
+    whole string to be consumed by this function, excluding leading
+    and trailing whitespace.
+
+    """
     parser = _LispParser(input_str)
     result = parser.parse_list_contents()
     parser.skip_whitespace()
@@ -109,6 +134,7 @@ class _LispParser:
 
 
 class LispParseError(Exception):
+    """An error that occurred during S-expression parsing."""
 
     def __init__(self, msg: str, position: int) -> None:
         super().__init__(msg)

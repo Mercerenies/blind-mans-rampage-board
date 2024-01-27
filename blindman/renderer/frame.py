@@ -5,13 +5,20 @@ from abc import ABC, abstractmethod
 
 
 class FrameRenderer(ABC):
+    """The backend for a VideoRenderer. A FrameRenderer determines
+    certain configuration parameters about the resulting video and
+    defines how to render each individual frame to the video.
+
+    """
 
     @abstractmethod
     def total_frames(self) -> int:
+        """The total number of frames desired in the resulting video."""
         ...
 
     @abstractmethod
     def fps(self) -> int:
+        """Frames per second of the resulting video."""
         ...
 
     @abstractmethod

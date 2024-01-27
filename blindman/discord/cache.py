@@ -2,6 +2,13 @@
 """Caching for user avatars, so we don't constantly ping Discord's
 server.
 
+This cache uses a local Redis data store which tracks avatars by their
+user and requested size parameter. If Redis is not running, then
+get_avatar is equivalent to simply querying the Discord API every time
+(that is, no caching is performed). In that case, loading this module
+will print a warning. The warning can be suppressed by setting the
+NO_REDIS environment variable.
+
 """
 
 from .user import User
@@ -29,6 +36,11 @@ if not _LOCAL_REDIS.ping():
 
 
 def get_avatar(user_id: str, size: int | None = None) -> bytes:
+    """Returns the avatar for the given user in the given size. This
+    function uses a Redis cache if available but falls back to a
+    direct Discord API call if needed.
+
+    """
     cache_key = f"avatar:{user_id}?size={size}"
     if _LOCAL_REDIS:
         cached_value: Any = _LOCAL_REDIS.hget(REDIS_KEY, cache_key)  # Any: Redis type is wrong

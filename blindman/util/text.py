@@ -30,6 +30,8 @@ def draw_text(
         font_scale: float,
         thickness: int,
 ) -> None:
+    """Prints a single line of text at the given position to the
+    image."""
     (text_width, text_height), _ = cv2.getTextSize(text, font, font_scale, thickness)
     origin = adjust_origin(origin, (text_height, text_width), align)
     cv2.putText(image, text, (origin[1], origin[0]), font, font_scale, color, thickness)
@@ -46,6 +48,8 @@ def draw_text_multiline(
         font_scale: float,
         thickness: int,
 ) -> None:
+    """Prints newline-separated text to the given position in the
+    image."""
     (_, em_height), baseline = cv2.getTextSize("M", font, font_scale, thickness)
     line_height = em_height + baseline
     lines = text.split("\n")
