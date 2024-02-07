@@ -2,7 +2,7 @@
 """Main entrypoint for Blind Man's Rampage video renderer."""
 
 from blindman.renderer import VideoRenderer
-from blindman.game import GameRenderer, InputFile, Board, Timeline, GameEngine
+from blindman.game import GameRenderer, InputFile, Board, Timeline, GameEngine, resolve_image_path
 from blindman.game.object import EventManager
 import blindman.util as util
 
@@ -23,6 +23,10 @@ def compile(input_file: InputFile) -> GameRenderer:
     game_engine = GameEngine()
     event_manager = EventManager(game_engine)
     game_engine.add_object(event_manager)
+
+    # Show initial background image
+    background_image = resolve_image_path(input_file.config.background_image, allow_discord=False)
+    game_engine.background_image = background_image
 
     # Set up the timeline and board manager.
     timeline = Timeline(manager=event_manager)
@@ -46,10 +50,13 @@ def compile(input_file: InputFile) -> GameRenderer:
     for command in input_file.commands:
         command.execute(board, timeline)
 
+    width, height, _ = background_image.shape
     return GameRenderer(
         config=input_file.config,
         engine=game_engine,
         total_frames=timeline.moment,
+        width=width,
+        height=height,
     )
 
 

@@ -16,15 +16,19 @@ class GameEngine:
     invokes their callbacks when appropriate."""
 
     _objects: list[GameObject]
+    background_image: np.ndarray | None
 
     def __init__(self) -> None:
         self._objects = []
+        self.background_image = None
 
     def perform_step(self, frame_number: int) -> None:
         for obj in copy(self._objects):  # copy: Do not reflect changes to the list during iteration.
             obj.step(frame_number)
 
     def render_frame(self, frame_number: int, canvas: np.ndarray) -> None:
+        if self.background_image is not None:
+            canvas[:] = self.background_image
         for obj in copy(self._objects):  # copy: Do not reflect changes to the list during iteration.
             obj.draw(frame_number, canvas)
 

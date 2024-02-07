@@ -7,7 +7,7 @@ import numpy as np
 DISCORD_AVATAR_SIZE = 32
 
 
-def resolve_image_path(image_path: str) -> np.ndarray:
+def resolve_image_path(image_path: str, *, allow_discord: bool = True) -> np.ndarray:
     """Load the image at the given path as a numpy array.
 
     If the path starts with "discord:", then it is read as a Discord
@@ -19,6 +19,8 @@ def resolve_image_path(image_path: str) -> np.ndarray:
 
     """
     if image_path.startswith('discord:'):
+        if not allow_discord:
+            raise ValueError('The "discord:" prefix is only allowed if "allow_discord=True"')
         return _load_discord_image(image_path[8:])
     else:
         image = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
