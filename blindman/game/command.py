@@ -9,6 +9,7 @@ from .image import resolve_image_path
 from blindman.game.object.sprite import Sprite
 from blindman.game.object.text import Text, TEXT_OBJECT_NAME
 from blindman.game.object.events import FadeObjectController
+from blindman.game.object.background import FadeBackgroundController
 
 import cattrs
 
@@ -133,12 +134,25 @@ class WaitCommand(Command):
         timeline.wait(self.frames)
 
 
+@dataclass(frozen=True)
+class ChangeBackgroundCommand(Command):
+    """Command to change the background image with a fade effect."""
+    image_path: str
+
+    def execute(self, board: Board, timeline: TimelineLike) -> None:
+        animation_time = MOVEMENT_LENGTHS[MovementType.LONG]
+        image = resolve_image_path(self.image_path)
+        timeline.append_event(FadeBackgroundController.event(image, total_frames=animation_time))
+        timeline.wait(animation_time)
+
+
 COMMAND_REGISTRY: dict[str, type]
 COMMAND_REGISTRY = {
     'move': MovePlayerCommand,
     'swap': SwapPlayerCommand,
     'add': AddPlayerCommand,
     'remove': DestroyPlayerCommand,
+    'change-background': ChangeBackgroundCommand,
     'text': SetTextCommand,
     'hide-text': ResetTextCommand,
     'wait': WaitCommand,
