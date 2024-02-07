@@ -51,3 +51,11 @@ class GameEngine:
             if obj.name == name:
                 return obj
         raise ValueError(f"Object with name '{name}' not found")
+
+    @property
+    def bounds(self) -> tuple[int, int]:
+        if self.background_image is None:
+            return (0, 0)
+        else:
+            w, h, _ = self.background_image.shape
+            return (h, w)

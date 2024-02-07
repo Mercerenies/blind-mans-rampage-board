@@ -10,6 +10,7 @@ from blindman.game.object.sprite import Sprite
 from blindman.game.object.text import Text
 from blindman.game.object.events import FadeObjectController, destroy_object_event
 from blindman.game.object.background import FadeBackgroundController
+from blindman.util import TextAlign
 
 import cattrs
 from cattrs.strategies import use_class_methods
@@ -134,9 +135,14 @@ class SetTextCommand(Command):
     def get_text(self) -> str:
         ...
 
-    @abstractmethod
-    def get_position(self, bounds: tuple[int, int]) -> tuple[int, int]:
-        ...
+    def on_post_init(self, engine: 'GameEngine', text: Text) -> None:
+        """Called after a new text object has been created. This
+        method should initialize the text object with any specific
+        parameters for this type of text. The text object's name and
+        display characters have already been set.
+
+        """
+        pass
 
     def execute(self, board: Board, timeline: TimelineLike) -> None:
         def _event(engine: 'GameEngine') -> None:
@@ -149,9 +155,9 @@ class SetTextCommand(Command):
                 width, height, _ = engine.background_image.shape if engine.background_image is not None else (0, 0, 0)
                 new_text_object = Text(
                     self.get_text(),
-                    position=self.get_position((height, width)),
                     name=name,
                 )
+                self.on_post_init(engine, new_text_object)
                 engine.add_object(new_text_object)
         timeline.append_event(_event)
 
@@ -178,8 +184,10 @@ class SetBottomTextCommand(SetTextCommand):
     def get_text(self) -> str:
         return self.text
 
-    def get_position(self, bounds: tuple[int, int]) -> tuple[int, int]:
-        return (bounds[0] - 32, bounds[1] // 2)
+    def on_post_init(self, engine: 'GameEngine', text: Text) -> None:
+        display_height, display_width = engine.bounds
+        text.position = (display_height - 32, display_width // 2)
+        text.alignment = TextAlign.BOTTOM_CENTER
 
 
 @dataclass(frozen=True)
@@ -189,6 +197,33 @@ class ResetBottomTextCommand(ResetTextCommand):
 
     def object_name(self) -> str:
         return BOTTOM_TEXT_OBJECT_NAME
+
+
+@dataclass(frozen=True)
+class SetTitleTextCommand(SetTextCommand):
+    """Command to set the status text for the image, which is
+    displayed at the bottom-center of the canvas."""
+    text: str
+
+    def object_name(self) -> str:
+        return TITLE_TEXT_OBJECT_NAME
+
+    def get_text(self) -> str:
+        return self.text
+
+    def on_post_init(self, engine: 'GameEngine', text: Text) -> None:
+        _, display_width = engine.bounds
+        text.position = (48, display_width // 2)
+        text.alignment = TextAlign.TOP_CENTER
+
+
+@dataclass(frozen=True)
+class ResetTitleTextCommand(ResetTextCommand):
+    """Command to remove the text from the canvas. No-op if there is
+    no text object currently present."""
+
+    def object_name(self) -> str:
+        return TITLE_TEXT_OBJECT_NAME
 
 
 @dataclass(frozen=True)
@@ -222,6 +257,8 @@ COMMAND_REGISTRY = {
     'change-background': ChangeBackgroundCommand,
     'text': SetBottomTextCommand,
     'hide-text': ResetBottomTextCommand,
+    'title': SetTitleTextCommand,
+    'hide-title': ResetTitleTextCommand,
     'wait': WaitCommand,
 }
 
