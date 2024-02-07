@@ -69,6 +69,11 @@
   ;;
   ;; Removes an object from the game board.
   (remove sparky)
+  ;; (change-background image-path)
+  ;;
+  ;; Fades to a new background image. The new background image must
+  ;; have the same width and height as the original.
+  (change-background "Background1.png")
   ;; (text string)
   ;;
   ;; Shows the given text at the bottom of the screen. Text is shown
