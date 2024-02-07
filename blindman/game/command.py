@@ -7,7 +7,7 @@ from .error import InputParseError
 from .movement import MovementPlanner, MovementType, MOVEMENT_LENGTHS
 from .image import resolve_image_path
 from blindman.game.object.sprite import Sprite
-from blindman.game.object.text import Text, TEXT_OBJECT_NAME
+from blindman.game.object.text import BottomText, BOTTOM_TEXT_OBJECT_NAME
 from blindman.game.object.events import FadeObjectController
 from blindman.game.object.background import FadeBackgroundController
 
@@ -128,12 +128,12 @@ class SetTextCommand(Command):
 
     def execute(self, board: Board, timeline: TimelineLike) -> None:
         def _event(engine: 'GameEngine') -> None:
-            if engine.has_object(TEXT_OBJECT_NAME):
-                existing_text_object = engine.find_object(TEXT_OBJECT_NAME)
-                assert isinstance(existing_text_object, Text)
+            if engine.has_object(BOTTOM_TEXT_OBJECT_NAME):
+                existing_text_object = engine.find_object(BOTTOM_TEXT_OBJECT_NAME)
+                assert isinstance(existing_text_object, BottomText)
                 existing_text_object.text = self.text
             else:
-                new_text_object = Text(self.text)
+                new_text_object = BottomText(self.text)
                 engine.add_object(new_text_object)
         timeline.append_event(_event)
 
@@ -145,8 +145,8 @@ class ResetTextCommand(Command):
 
     def execute(self, board: Board, timeline: TimelineLike) -> None:
         def _event(engine: 'GameEngine') -> None:
-            if engine.has_object(TEXT_OBJECT_NAME):
-                engine.remove_object(TEXT_OBJECT_NAME)
+            if engine.has_object(BOTTOM_TEXT_OBJECT_NAME):
+                engine.remove_object(BOTTOM_TEXT_OBJECT_NAME)
         timeline.append_event(_event)
 
 

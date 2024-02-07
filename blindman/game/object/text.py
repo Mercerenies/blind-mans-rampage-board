@@ -6,7 +6,7 @@ import numpy as np
 import cv2
 from attrs import define, field
 
-TEXT_OBJECT_NAME = "__text"
+BOTTOM_TEXT_OBJECT_NAME = "__bottomtext"
 TEXT_Z_INDEX = 10
 SOLID_BLACK = (0, 0, 0, 255)
 
@@ -14,7 +14,7 @@ Color = tuple[int, int, int, int]
 
 
 @define(eq=False)
-class Text(GameObject):
+class BottomText(GameObject):
     """Singleton object which draws text at the lower-center of the
     grid. Only one can exist per GameEngine at a time."""
     text: str = field()
@@ -33,7 +33,7 @@ class Text(GameObject):
 
     @property
     def name(self) -> str:
-        return TEXT_OBJECT_NAME
+        return BOTTOM_TEXT_OBJECT_NAME
 
     def step(self, frame_number: int) -> None:
         pass  # Status text is a static object; it does not move on its own

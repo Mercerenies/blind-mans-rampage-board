@@ -73,11 +73,20 @@ def create_object_event(object_factory: Callable[[GameEngine], GameObject]) -> E
     return _event
 
 
-def destroy_object_event(object_name: str) -> Event:
-    """An event which destroys the GameObject with the given name."""
+def destroy_object_event(object_name: str, *, allow_nonexistent: bool = False) -> Event:
+    """An event which destroys the GameObject with the given name.
+
+    If allow_nonexistent is False (the default), an exception will be
+    raised on non-existent objects. If allow_nonexistent is True,
+    attempting to destroy a non-existent object is a no-op.
+
+    """
 
     def _event(game: GameEngine) -> None:
-        game.remove_object(object_name)
+        if game.has_object(object_name):
+            game.remove_object(object_name)
+        elif not allow_nonexistent:
+            raise ValueError(f'Object does not exist: {object_name}')
     return _event
 
 
