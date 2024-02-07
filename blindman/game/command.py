@@ -12,6 +12,7 @@ from blindman.game.object.events import FadeObjectController
 from blindman.game.object.background import FadeBackgroundController
 
 import cattrs
+from cattrs.strategies import use_class_methods
 
 from abc import abstractmethod, ABC
 from dataclasses import dataclass
@@ -58,6 +59,30 @@ class SwapPlayerCommand(Command):
             planner.add_player(self.first_player, MovementType.LONG)
             planner.add_player(self.second_player, MovementType.LONG)
             board[self.first_player], board[self.second_player] = board[self.second_player], board[self.first_player]
+
+
+@dataclass(frozen=True)
+class ShufflePlayerCommand(Command):
+    """Generalized swap command, capable of moving several players to
+    each others' locations in parallel.
+
+    """
+
+    movements: tuple[tuple[str, str], ...]
+
+    def execute(self, board: Board, timeline: TimelineLike) -> None:
+        with MovementPlanner(board, timeline) as planner:
+            original_positions_map: dict[str, str] = {}
+            for source_player, _ in self.movements:
+                planner.add_player(source_player, MovementType.LONG)
+                original_positions_map[source_player] = board[source_player]
+            for source_player, destination_player in self.movements:
+                board[source_player] = original_positions_map[destination_player]
+
+    @classmethod
+    def cattrs_structure(cls, data) -> 'ShufflePlayerCommand':
+        movements = cattrs.structure(data, tuple[tuple[str, str], ...])
+        return cls(movements=movements)
 
 
 @dataclass(frozen=True)
@@ -150,6 +175,7 @@ COMMAND_REGISTRY: dict[str, type]
 COMMAND_REGISTRY = {
     'move': MovePlayerCommand,
     'swap': SwapPlayerCommand,
+    'shuffle': ShufflePlayerCommand,
     'add': AddPlayerCommand,
     'remove': DestroyPlayerCommand,
     'change-background': ChangeBackgroundCommand,
@@ -170,4 +196,13 @@ def parse_command(command_sexpr: Any) -> Command:
         raise InputParseError("Expected non-empty list for command")
 
     command_type = COMMAND_REGISTRY[str(command_sexpr[0])]
-    return cattrs.structure_attrs_fromtuple(tuple(command_sexpr[1:]), command_type)
+    converter = _command_converter()
+    return converter.structure(tuple(command_sexpr[1:]), command_type)
+
+
+def _command_converter() -> cattrs.Converter:
+    converter = cattrs.Converter(
+        unstruct_strat=cattrs.UnstructureStrategy.AS_TUPLE,
+    )
+    use_class_methods(converter, structure_method_name="cattrs_structure")
+    return converter
