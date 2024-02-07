@@ -186,7 +186,7 @@ class SetBottomTextCommand(SetTextCommand):
 
     def on_post_init(self, engine: 'GameEngine', text: Text) -> None:
         display_height, display_width = engine.bounds
-        text.position = (display_height - 32, display_width // 2)
+        text.position = (display_height - 24, display_width // 2)
         text.alignment = TextAlign.BOTTOM_CENTER
 
 
