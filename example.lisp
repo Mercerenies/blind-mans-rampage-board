@@ -88,8 +88,17 @@
   (text "Things happened!")
   ;; (hide-text)
   ;;
-  ;; Hides any displayed text.
+  ;; Hides any displayed bottom text.
   (hide-text)
+  ;; (title string)
+  ;;
+  ;; Shows the given text at the top of the screen. Text is shown
+  ;; instantaneously and remains until replaced or hidden.
+  (title "The Game")
+  ;; (hide-title)
+  ;;
+  ;; Hides any displayed title text.
+  (hide-title)
   ;; (wait frames)
   ;;
   ;; Do nothing for the specified amount of time.
