@@ -29,7 +29,9 @@ class GameEngine:
     def render_frame(self, frame_number: int, canvas: np.ndarray) -> None:
         if self.background_image is not None:
             canvas[:] = self.background_image
-        for obj in copy(self._objects):  # copy: Do not reflect changes to the list during iteration.
+        objects = copy(self._objects)  # copy: Do not reflect changes to the list during iteration.
+        objects.sort(key=lambda obj: obj.z_index)
+        for obj in objects:
             obj.draw(frame_number, canvas)
 
     def add_object(self, obj: GameObject) -> None:

@@ -8,6 +8,13 @@ class GameObject(ABC):
     """An object in the game room."""
 
     @property
+    def z_index(self) -> int:
+        """Objects with a higher z_index will draw in front of others.
+        The draw order for objects of the same z_index is
+        unspecified."""
+        return 0
+
+    @property
     @abstractmethod
     def name(self) -> str | None:
         """Game objects can optionally have a name, to make it easier

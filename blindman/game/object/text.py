@@ -7,6 +7,7 @@ import cv2
 from attrs import define, field
 
 TEXT_OBJECT_NAME = "__text"
+TEXT_Z_INDEX = 10
 SOLID_BLACK = (0, 0, 0, 255)
 
 Color = tuple[int, int, int, int]
@@ -25,6 +26,10 @@ class Text(GameObject):
 
     def __attrs_pre_init__(self) -> None:
         super().__init__()
+
+    @property
+    def z_index(self) -> int:
+        return TEXT_Z_INDEX
 
     @property
     def name(self) -> str:
