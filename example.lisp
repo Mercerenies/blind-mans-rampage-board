@@ -60,6 +60,13 @@
   ;;
   ;; Swaps two objects' positions.
   (swap discord-user star)
+  ;; (shuffle (player1 player2) ...)
+  ;;
+  ;; Generalized swap command. For each sub-list, moves player1 to the
+  ;; position of player2. Movements happen simultaneously.
+  (shuffle
+    (discord-user star)
+    (star discord-user))
   ;; (add name image-path start-space)
   ;;
   ;; Adds a new object to the game board. Parameters are interpreted
