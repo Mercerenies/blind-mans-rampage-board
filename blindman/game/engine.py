@@ -11,6 +11,7 @@ import numpy as np
 from copy import copy
 
 
+# TODO Don't allow duplicate object names (currently, behavior is undefined in that case)
 class GameEngine:
     """Game engine, which maintains a collection of objects and
     invokes their callbacks when appropriate."""

@@ -22,7 +22,7 @@ class TextAlign(Enum):
 def draw_text(
         image: np.ndarray,
         text: str,
-        origin: tuple[int, int],  # (height, width)
+        origin: tuple[int, int],
         *,
         align: TextAlign = TextAlign.BOTTOM_LEFT,
         font: int = cv2.FONT_HERSHEY_SIMPLEX,
@@ -40,7 +40,7 @@ def draw_text(
 def draw_text_multiline(
         image: np.ndarray,
         text: str,
-        origin: tuple[int, int],  # (height, width)
+        origin: tuple[int, int],
         *,
         align: TextAlign = TextAlign.BOTTOM_LEFT,
         font: int = cv2.FONT_HERSHEY_SIMPLEX,
@@ -74,7 +74,7 @@ def draw_text_multiline(
             font_scale=font_scale,
             thickness=thickness,
         )
-        origin = (origin[0] + line_height, origin[1])
+        origin = (origin[0], origin[1] + line_height)
 
 
 def adjust_origin(origin: tuple[int, int], text_box: tuple[int, int], alignment: TextAlign) -> tuple[int, int]:

@@ -7,8 +7,8 @@ from .error import InputParseError
 from .movement import MovementPlanner, MovementType, MOVEMENT_LENGTHS
 from .image import resolve_image_path
 from blindman.game.object.sprite import Sprite
-from blindman.game.object.text import BottomText, BOTTOM_TEXT_OBJECT_NAME
-from blindman.game.object.events import FadeObjectController
+from blindman.game.object.text import Text
+from blindman.game.object.events import FadeObjectController, destroy_object_event
 from blindman.game.object.background import FadeBackgroundController
 
 import cattrs
@@ -20,6 +20,10 @@ from typing import Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from blindman.game.engine import GameEngine
+
+
+BOTTOM_TEXT_OBJECT_NAME = "__bottomtext"
+TITLE_TEXT_OBJECT_NAME = "__titletext"
 
 
 class Command(ABC):
@@ -120,34 +124,71 @@ class DestroyPlayerCommand(Command):
             timeline.append_event(FadeObjectController.fade_out_event(self.player_name, animation_time))
 
 
-@dataclass(frozen=True)
 class SetTextCommand(Command):
-    """Command to set the status text for the image, which is
-    displayed at the bottom-center of the canvas."""
-    text: str
+
+    @abstractmethod
+    def object_name(self) -> str:
+        ...
+
+    @abstractmethod
+    def get_text(self) -> str:
+        ...
+
+    @abstractmethod
+    def get_position(self, bounds: tuple[int, int]) -> tuple[int, int]:
+        ...
 
     def execute(self, board: Board, timeline: TimelineLike) -> None:
         def _event(engine: 'GameEngine') -> None:
-            if engine.has_object(BOTTOM_TEXT_OBJECT_NAME):
-                existing_text_object = engine.find_object(BOTTOM_TEXT_OBJECT_NAME)
-                assert isinstance(existing_text_object, BottomText)
-                existing_text_object.text = self.text
+            name = self.object_name()
+            if engine.has_object(name):
+                existing_text_object = engine.find_object(name)
+                assert isinstance(existing_text_object, Text)
+                existing_text_object.text = self.get_text()
             else:
-                new_text_object = BottomText(self.text)
+                width, height, _ = engine.background_image.shape if engine.background_image is not None else (0, 0, 0)
+                new_text_object = Text(
+                    self.get_text(),
+                    position=self.get_position((height, width)),
+                    name=name,
+                )
                 engine.add_object(new_text_object)
         timeline.append_event(_event)
 
 
+class ResetTextCommand(Command, ABC):
+
+    @abstractmethod
+    def object_name(self) -> str:
+        ...
+
+    def execute(self, board: Board, timeline: TimelineLike) -> None:
+        timeline.append_event(destroy_object_event(self.object_name(), allow_nonexistent=True))
+
+
 @dataclass(frozen=True)
-class ResetTextCommand(Command):
+class SetBottomTextCommand(SetTextCommand):
+    """Command to set the status text for the image, which is
+    displayed at the bottom-center of the canvas."""
+    text: str
+
+    def object_name(self) -> str:
+        return BOTTOM_TEXT_OBJECT_NAME
+
+    def get_text(self) -> str:
+        return self.text
+
+    def get_position(self, bounds: tuple[int, int]) -> tuple[int, int]:
+        return (bounds[0] - 32, bounds[1] // 2)
+
+
+@dataclass(frozen=True)
+class ResetBottomTextCommand(ResetTextCommand):
     """Command to remove the text from the canvas. No-op if there is
     no text object currently present."""
 
-    def execute(self, board: Board, timeline: TimelineLike) -> None:
-        def _event(engine: 'GameEngine') -> None:
-            if engine.has_object(BOTTOM_TEXT_OBJECT_NAME):
-                engine.remove_object(BOTTOM_TEXT_OBJECT_NAME)
-        timeline.append_event(_event)
+    def object_name(self) -> str:
+        return BOTTOM_TEXT_OBJECT_NAME
 
 
 @dataclass(frozen=True)
@@ -179,8 +220,8 @@ COMMAND_REGISTRY = {
     'add': AddPlayerCommand,
     'remove': DestroyPlayerCommand,
     'change-background': ChangeBackgroundCommand,
-    'text': SetTextCommand,
-    'hide-text': ResetTextCommand,
+    'text': SetBottomTextCommand,
+    'hide-text': ResetBottomTextCommand,
     'wait': WaitCommand,
 }
 
